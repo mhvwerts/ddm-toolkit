@@ -1,0 +1,10 @@
+__pycache__/
+.ipynb_checkpoints/
+archive/
+local/
+private/
+*.zip
+*.npz
+package*/
+*.so
+
