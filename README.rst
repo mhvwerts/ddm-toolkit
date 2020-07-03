@@ -68,13 +68,15 @@ And finally, analysis of the ISF in terms of the simple Brownian model:
 
 The simulation and analysis parameters required by the scripts are set using a (default) parameter file ``simul0_default_params.txt``. Alternative parameter files may be used by supplying their filename as an argument to the Python script.
 
-Execution of this sequence of script is a way of testing the code base, in a basic and somewhat cumbersome fashion. A nice aspect is that intermediate results (synthetic video, ISF) are stored in the ``datafiles`` directory, so that it is not necessary to re-calculate them over and over when experimenting with a script or an analysis.
+Execution of this sequence of scripts is a way of testing the code base, in a basic and somewhat cumbersome fashion. A nice aspect is that intermediate results (synthetic video, ISF) are stored in the ``datafiles`` directory, so that it is not necessary to re-calculate them over and over when experimenting with a script or an analysis.
 
 
-----------
-Vocabulary
-----------
-In our choice of terms, we aim to be consistent with common usage in the existing DDM literature. In our text, we use the term "image structure function" (ISF) both for the (differential) image structure function at a certain time lag AND for the complete sequence of (differential) image structure functions over a series of time lags. We would have preferred to call the latter "video structure function" (which would be 2D spatial + time)
+-----
+TO DO
+-----
+
+- Add an example of processing a real video file
+- (Re)organize documentation: put certain sections in separate files
 
 
 ---------------
@@ -114,6 +116,11 @@ There is one extra external dependency at the moment, `LMFit`_ (which depends on
 
 .. _LMFit: https://lmfit.github.io/lmfit-py/
 
+
+
+Vocabulary
+==========
+In our choice of terms, we aim to be consistent with common usage in the existing DDM literature. In our text, we use the term "image structure function" (ISF) both for the (differential) image structure function at a certain time lag AND for the complete sequence of (differential) image structure functions over a series of time lags. We would have preferred to call the latter "video structure function" (which would be 2D spatial + time)
 
 
 Programming style
