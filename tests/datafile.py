@@ -3,7 +3,7 @@ import os
 from sys import argv
 import numpy as np
 from utils.tqdm import tqdm
-from ddm_toolkit.functions import brownian_softbox, imgsynth2
+from ddm_toolkit.simulation import brownian_softbox, imgsynth2
 
 def generate_datafile(fname):
     # STEP 1: Brownian simulation and Video synthesis

@@ -76,6 +76,8 @@ TO DO
 -----
 
 - Add an example of processing a real video file
+- ``tifffile.py`` is probably better put under ddm_toolkit (because of glitchdetect.py)
+- ``ddm_toolkit`` modules should have minimal external dependencies (preferrably only numpy, scipy; other dependencies should be assimilated into code-base)
 - (Re)organize documentation: put certain sections in separate files
 
 
