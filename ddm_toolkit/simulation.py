@@ -26,26 +26,59 @@ from ddm_toolkit.ddm import ImageStructureEngine
 # reportedly has better statistical properties. MT19937 also gave 
 # satisfactory results.
 #
-# Provisional reference:
-#@techreport{oneill:pcg2014,
-#    title = "PCG: A Family of Simple Fast Space-Efficient Statistically Good Algorithms for Random Number Generation",
-#    author = "Melissa E. O'Neill",
-#    institution = "Harvey Mudd College",
-#    address = "Claremont, CA",
-#    number = "HMC-CS-2014-0905",
-#    year = "2014",
-#    month = Sep,
-#    xurl = "https://www.cs.hmc.edu/tr/hmc-cs-2014-0905.pdf",
-#}
+# Our use of PCG64 in simple Brownian simulations coupled to DDM analysis
+# is actually one way of testing this PRNG for application in 
+# Brownian dynamic simulation, since the expected result is perfectly
+# known theoretically. (This assumes that the rest of the simulation program
+# is perfect as well!)
 #
-# https://www.pcg-random.org/posts/history-of-the-pcg-paper.html
+#
+# Bibliographic references:
+#
+# [1] @techreport{oneill:pcg2014,
+#       title = "PCG: A Family of Simple Fast Space-Efficient Statistically Good 
+#                Algorithms for Random Number Generation",
+#       author = "Melissa E. O'Neill",
+#       institution = "Harvey Mudd College",
+#       address = "Claremont, CA",
+#       number = "HMC-CS-2014-0905",
+#       year = "2014",
+#       month = Sep,
+#       xurl = "https://www.cs.hmc.edu/tr/hmc-cs-2014-0905.pdf",
+#     }
+#
+# [2] https://www.pcg-random.org/posts/history-of-the-pcg-paper.html
+#
+# [3] Bouillaguet, C.; Martinez, F.; Sauvage, J. "Predicting the PCG Pseudo-Random 
+#     Number Generator In Practice." hal-02700791 (2020). 
+#     https://hal.archives-ouvertes.fr/hal-02700791
 
 
 PRNG = Generator(PCG64())
- 
+
+
+def random_coordinates(Np, d):
+    """Generate the coordinates in 1D of a collection of Np
+    evenly distributed particles.
+    
+    Parameters
+    ----------
+    Np : int
+        Number of particles.
+    d : float
+        Size of the box. The generated coordinates will be in
+        the range [0.0, d>
+
+    Returns
+    -------
+    np.array
+        1D array with Np particle coordinates.
+    """
+    return PRNG.random(Np)*d
+
 
 def brownian_softbox(x0, Nt, dt, D, bl):
-    """"Generate time-sequences of 1D Brownian trajectories.
+    """Generate time-sequences of 1D Brownian trajectories.
     
     Generates time-sequences of 1D Brownian trajectories of Np
     particles in a box with 'soft' boundaries, starting from 
@@ -54,7 +87,8 @@ def brownian_softbox(x0, Nt, dt, D, bl):
     
     Parameters
     ----------
-    x0 : np.array 1D containing the initial coordinate for each particle
+    x0 : np.array 
+        1D containing the initial coordinate for each particle
     """
         
     # generate Nt random steps for each particle in x0
@@ -63,6 +97,7 @@ def brownian_softbox(x0, Nt, dt, D, bl):
     delta = np.sqrt(2*D)
     r = PRNG.normal(loc = 0.0, scale = delta*np.sqrt(dt),
                     size = x0.shape+(Nt,))
+    
     # get number of particles from generated array
     Np = r.shape[0]
     assert Nt == r.shape[1], "what went wrong?"

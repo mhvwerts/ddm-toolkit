@@ -7,6 +7,7 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 import matplotlib.pyplot as plt
 
+from ddm_toolkit.simulation import random_coordinates
 from ddm_toolkit.simulation import imgsynth1
 from ddm_toolkit.simulation import imgsynth2
 
@@ -37,8 +38,8 @@ um_p_pix = img_width/img_Npx
 ### synthesize an image
 
 # generate random x,y
-x0=np.random.random(Np)*bl_x
-y0=np.random.random(Np)*bl_y
+x0 = random_coordinates(Np, bl_x)
+y0 = random_coordinates(Np, bl_y)
 
 img = imgsynth1(x0, y0, img_w,
     -img_border, -img_border, 

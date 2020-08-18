@@ -3,7 +3,9 @@ import os
 from sys import argv
 import numpy as np
 from utils.tqdm import tqdm
-from ddm_toolkit.simulation import brownian_softbox, imgsynth2
+
+from ddm_toolkit.simulation import brownian_softbox, random_coordinates
+from ddm_toolkit.simulation import imgsynth2
 
 def generate_datafile(fname):
     # STEP 1: Brownian simulation and Video synthesis
@@ -52,14 +54,14 @@ def generate_datafile(fname):
     s_p_frame = dt
 
 
-    # SIMULATION
+        # SIMULATION (2D)
 
     #set initial particle coordinates
-    x0=np.random.random(Np)*bl_x
-    y0=np.random.random(Np)*bl_y
+    x0 = random_coordinates(Np, bl_x)
+    y0 = random_coordinates(Np, bl_y)
     #create array of coordinates of the particles at different timesteps
-    x1=brownian_softbox(x0, Nt, dt, D, bl_x)
-    y1=brownian_softbox(y0, Nt, dt, D, bl_y)
+    x1 = brownian_softbox(x0, Nt, dt, D, bl_x)
+    y1 = brownian_softbox(y0, Nt, dt, D, bl_y)
 
     #make the synthetic image stack
     ims=[]
