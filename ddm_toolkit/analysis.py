@@ -19,11 +19,11 @@ https://cecill.info/index.en.html
 
 """
 
-
 import numpy as np
-import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
-from lmfit import Model
+# from lmfit import Model 
+# TODO: completely remove lmfit-related code (clean-up)
 
 from ddm_toolkit.functions import closestidx, conf95
 
@@ -68,9 +68,7 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     
 
     """
-    #TODO: consider replacing lmfit by basic scipy curve_fit in order
-    #to reduce dependencies   
-    
+   
     # Return result data will be stored in dictionary
     result = {} 
     # I realize that a class + methods would be more elegant
@@ -109,12 +107,12 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     def ISFmod(tau, A, B, k):
         f = np.exp(-k*tau)
         return A*(1-f) + B
-    ISFmodel = Model(ISFmod)
+    # ISFmodel = Model(ISFmod) #lmfit legacy code
     
     # model function: k = Dq^2
     def kmod(q, D):
         return D*q**2
-    kmodel = Model(kmod)
+    # kmodel = Model(kmod) #lmfit legacy code
     
     result['D_guess_user'] = D_guess
     if verbose:
@@ -147,20 +145,39 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
             q_opt = np.sqrt(k_opt/D_guess)
             iq_opt = closestidx(IA.q, q_opt)
             q_opt = IA.q[iq_opt]
+
             # fit ISF at select q values
             # create initial guess and parameter set-up
+
+            ####
+            ## (legacy lmfit-based code)
+            # kinit = k_opt
+            # Binit = IAqtau[0, iq_opt]
+            # Ainit = IAqtau[-1, iq_opt] - Binit
+            # ISFinit = ISFmodel.make_params(A = Ainit,
+            #                                B = Binit,
+            #                and ``lmfit``.                 k = kinit)
+            # constrain parameters to positive values to improve
+            #     fit convergence and stability
+            # ISFinit['A'].min = 0.0 ## TODO: find equivalent for curve_fit
+            # ISFinit['k'].min = 0.0 # may even define lower/upper limit for k
+            # fit = ISFmodel.fit(IAqtau[:,iq_opt], ISFinit, tau=IA.tau)
+            # k_q = fit.best_values['k']
+            # A_q = fit.best_values['A']
+            # B_q = fit.best_values['B']
+            ##
+            ####
+            
+            ## scipy.optimize.curve_fit based fitting
             kinit = k_opt
             Binit = IAqtau[0, iq_opt]
             Ainit = IAqtau[-1, iq_opt] - Binit
-            ISFinit = ISFmodel.make_params(A = Ainit,
-                                           B = Binit,
-                                           k = kinit)
-            ISFinit['A'].min = 0.0
-            ISFinit['k'].min = 0.0 # may even define lower/upper limit for k
-            fit = ISFmodel.fit(IAqtau[:,iq_opt], ISFinit, tau=IA.tau)
-            k_q = fit.best_values['k']
-            A_q = fit.best_values['A']
-            B_q = fit.best_values['B']
+            p_guess = [Ainit, Binit, kinit]
+            p_fit, p_fitcov = curve_fit(ISFmod, IA.tau, IAqtau[:,iq_opt],
+                                        p0 = p_guess)
+            k_q = p_fit[2]
+            A_q = p_fit[0]
+            B_q = p_fit[1]
             
             # refined guess
             D_guess2 = k_q / (q_opt**2)
@@ -224,53 +241,95 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     # here: fit full data (since optimal fit window would be larger than
     #       available data)
     for iqf in range(iq_low, iq_opt+1):
+        ####
+        ## (legacy lmfit-based code)
+        # qf = IA.q[iqf]
+        # kinit = D_guess*qf**2
+        # Binit = IAqtau[0, iqf] #todo: find a better guess, this one is always zero!
+        # Ainit = IAqtau[-1, iqf] - Binit
+        # ISFinit = ISFmodel.make_params(A = Ainit,
+        #                                B = Binit,
+        #                                k = kinit)
+        # ISFinit['A'].min = 0.0 #TO DO: include these constraints in the scipy curve_fit fitting
+        # ISFinit['k'].min = 0.0 # may even define lower/upper limit for k
+        # fit = ISFmodel.fit(IAqtau[:,iqf], ISFinit, tau=IA.tau)
+        # k_q[iqf] = fit.best_values['k']
+        # A_q[iqf] = fit.best_values['A']
+        # B_q[iqf] = fit.best_values['B']
+        ##
+        ####
+        
+        ## scipy.optimize.curve_fit based fitting
         qf = IA.q[iqf]
         kinit = D_guess*qf**2
-        Binit = IAqtau[0, iqf] #todo: find a better guess, this one is always zero!
+        Binit = IAqtau[0, iqf]
         Ainit = IAqtau[-1, iqf] - Binit
-        ISFinit = ISFmodel.make_params(A = Ainit,
-                                       B = Binit,
-                                       k = kinit)
-        ISFinit['A'].min = 0.0
-        ISFinit['k'].min = 0.0 # may even define lower/upper limit for k
-        fit = ISFmodel.fit(IAqtau[:,iqf], ISFinit, tau=IA.tau)
-        k_q[iqf] = fit.best_values['k']
-        A_q[iqf] = fit.best_values['A']
-        B_q[iqf] = fit.best_values['B']
+        p_guess = [Ainit, Binit, kinit]
+        p_fit, p_fitcov = curve_fit(ISFmod, IA.tau, IAqtau[:,iqf],
+                                    p0 = p_guess)
+        k_q[iqf] = p_fit[2]
+        A_q[iqf] = p_fit[0]
+        B_q[iqf] = p_fit[1]
+  
         # sample specific fits (for plotting and diagnostic purposes)
         if (iqf==iq_low):
-            result['ISFmodelfit_qlow'] = ISFmodel.eval(fit.params,tau=IA.tau)
+            result['ISFmodelfit_qlow'] = ISFmod(IA.tau, *p_fit)
+            #result['ISFmodelfit_qlow'] = ISFmodel.eval(fit.params,tau=IA.tau)
         if (iqf==iq_opt):
-            result['ISFmodelfit_qopt'] = ISFmodel.eval(fit.params,tau=IA.tau)
+            result['ISFmodelfit_qopt'] = ISFmod(IA.tau, *p_fit)
+            #result['ISFmodelfit_qopt'] = ISFmodel.eval(fit.params,tau=IA.tau)
     #
     # FIT LOOP / PART B: Fit between q_opt and q_high 
     #
     # here: reduce fit range to have 'optimal fit window'
     # use fit result for new initial guess
     for iqf in range(iq_opt+1, iq_high+1):
+        ####
+        ## (legacy lmfit-based code)
+        # qf = IA.q[iqf]
+        # kinit = D_guess*qf**2 # take expected value on basis of D_guess
+        # Binit = B_q[iqf-1] # from previous fit
+        # Ainit = A_q[iqf-1] # take amplitude guess from previous fit
+        # ISFinit = ISFmodel.make_params(A = Ainit,
+        #                                B = Binit,
+        #                                k = kinit)
+        # ISFinit['A'].min = 0.0
+        # ISFinit['k'].min = 0.0 # may even define lower/upper limit for k
+        # # reduce fit range to have 'optimal fit window'
+        # tau_opt = optfac/kinit
+        # itau_opt = closestidx(IA.tau, tau_opt)
+        # tau_opt = IA.tau[itau_opt]
+        
+        # fit = ISFmodel.fit(IAqtau[:itau_opt,iqf], ISFinit,
+        #                    tau=IA.tau[:itau_opt])
+        # k_q[iqf] = fit.best_values['k']
+        # A_q[iqf] = fit.best_values['A']
+        # B_q[iqf] = fit.best_values['B']  
+        ##
+        ####
+        
+        ## scipy.optimize.curve_fit based fitting
         qf = IA.q[iqf]
         kinit = D_guess*qf**2 # take expected value on basis of D_guess
         Binit = B_q[iqf-1] # from previous fit
         Ainit = A_q[iqf-1] # take amplitude guess from previous fit
-        ISFinit = ISFmodel.make_params(A = Ainit,
-                                       B = Binit,
-                                       k = kinit)
-        ISFinit['A'].min = 0.0
-        ISFinit['k'].min = 0.0 # may even define lower/upper limit for k
-        #here: reduce fit range to have 'optimal fit window'
+        p_guess = [Ainit, Binit, kinit]
+        # reduce fit range to have 'optimal fit window'
         tau_opt = optfac/kinit
-        #print('tau_opt =',tau_opt)
         itau_opt = closestidx(IA.tau, tau_opt)
         tau_opt = IA.tau[itau_opt]
+        # fit
+        p_fit, p_fitcov = curve_fit(ISFmod,
+                                    IA.tau[:itau_opt], IAqtau[:itau_opt,iqf],
+                                    p0 = p_guess)
+        k_q[iqf] = p_fit[2]
+        A_q[iqf] = p_fit[0]
+        B_q[iqf] = p_fit[1]
         
-        fit = ISFmodel.fit(IAqtau[:itau_opt,iqf], ISFinit,
-                           tau=IA.tau[:itau_opt])
-        k_q[iqf] = fit.best_values['k']
-        A_q[iqf] = fit.best_values['A']
-        B_q[iqf] = fit.best_values['B']  
         # sample fit for iq_high (for plotting and diagnostic purposes)
         if (iqf==iq_high):
-            result['ISFmodelfit_qhigh'] = ISFmodel.eval(fit.params,tau=IA.tau)
+            result['ISFmodelfit_qhigh'] = ISFmod(IA.tau, *p_fit)
+            #result['ISFmodelfit_qhigh'] = ISFmodel.eval(fit.params,tau=IA.tau)
 
     # store A(q), B(q), k(q)    
     result['k_q'] = k_q
@@ -278,13 +337,25 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     result['B_q'] = B_q
     
     # Steps 7-8: fit k
-    kfitinit = kmodel.make_params(D = D_guess)
-    kfitinit['D'].min = 0
-    fit = kmodel.fit(k_q[iq_low:iq_high], kfitinit, q=IA.q[iq_low:iq_high])
-    Dfit = fit.params['D'].value
-    # Dse = fit.params['D'].stderr
-    Ndata = fit.ndata
-    Dstdv = fit.covar[0,0]**0.5
+    
+    ####
+    ## (legacy lmfit-based code)
+    # kfitinit = kmodel.make_params(D = D_guess)
+    # kfitinit['D'].min = 0 # TODO: find equivalent for curve_fit
+    # fit = kmodel.fit(k_q[iq_low:iq_high], kfitinit, q=IA.q[iq_low:iq_high])
+    # Dfit = fit.params['D'].value
+    # Ndata = fit.ndata
+    # Dstdv = fit.covar[0,0]**0.5
+    # Dci = conf95(Dstdv, Ndata, 1) 
+    ##
+    ####
+    p_guess = [D_guess]
+    p_fit, p_fitcov = curve_fit(kmod,
+                                IA.q[iq_low:iq_high], k_q[iq_low:iq_high],
+                                p0 = p_guess)
+    Dfit = p_fit[0]
+    Ndata = len(k_q[iq_low:iq_high])
+    Dstdv = p_fitcov[0,0]**0.5
     Dci = conf95(Dstdv, Ndata, 1) 
     
     if verbose:

@@ -21,7 +21,7 @@ from ddm_toolkit.ddm import ImageStructureEngine
 # throughout the simulation code
 # 
 # We might have used the well-known "Mersenne Twister" as provided 
-# by numpy (MT19937), but we chose O’Neill’s "permutation 
+# by numpy (MT19937), but we chose O’Neill’s "permuted 
 # congruential generator" (PCG64). It is more recent (2014), and 
 # reportedly has better statistical properties. MT19937 also gave 
 # satisfactory results.
@@ -88,7 +88,7 @@ def brownian_softbox(x0, Nt, dt, D, bl):
     Parameters
     ----------
     x0 : np.array 
-        1D containing the initial coordinate for each particle
+        1D array containing the initial coordinate for each particle
     """
         
     # generate Nt random steps for each particle in x0

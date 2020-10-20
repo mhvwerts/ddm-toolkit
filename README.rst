@@ -23,7 +23,7 @@ Our DDM toolkit has several specific original features:
 Installation
 ------------
 
-There is no specific installable package yet for this toolkit, and it does not need separate installation. In order to use the toolkit, download this Github repository as a ZIP file (or 'clone' the repository) and unpack it in a separate folder on your computer. The scripts can be run from the command line using a suitable Python environment. We recommend Anaconda Miniconda3 with the `conda-forge`_ channel. The toolkit requires Python 3.6 or higher, and needs ``numpy``, ``scipy``, ``matplotlib`` and ``lmfit``.
+There is no specific installable package yet for this toolkit, and it does not need separate installation. In order to use the toolkit, download this Github repository as a ZIP file (or 'clone' the repository) and unpack it in a separate folder on your computer. The scripts can be run from the command line using a suitable Python environment. We recommend Anaconda Miniconda3 with the `conda-forge`_ channel. The toolkit requires Python 3.6 or higher, and only needs ``numpy``, ``scipy``, ``matplotlib``.
 
 
 -----------
@@ -115,11 +115,6 @@ Python version requirement and dependencies
 Python 3.6 or newer is needed to run all of the code: we introduced some static type checking, here and there. We did not test with older versions of Python.
 
 The aim is to have a monolithic code-base that only depends on Python 3.x, its standard modules, and ``numpy``, ``scipy`` and ``matplotlib``. Any other external modules that we use (currently: the brilliant ``tifffile``, the lovely ``tdqm`` and the nice ``python-tabular``) have been directly incorporated ("assimilated") by copying their source code into the ``ddm_toolkit`` code tree.
-
-There is one extra external dependency at the moment, `LMFit`_ (which depends on yet other external packages...). Since our fitting needs are simple, we may consider simply using SciPy's `curve_fit`, in order to minimize dependence on external modules.
-
-.. _LMFit: https://lmfit.github.io/lmfit-py/
-
 
 
 Vocabulary
