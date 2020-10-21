@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 
 from ddm_toolkit import ImageStructureFunction
 
-from utils.videofig import videofig 
+from ddm_toolkit.misc.videofig import videofig 
 
 
 # ==============================

@@ -78,8 +78,7 @@ TO DO
 -----
 
 - Add an example of processing a real video file
-- ``tifffile.py`` is probably better put under ddm_toolkit (because of glitchdetect.py)
-- ``ddm_toolkit`` modules should have minimal external dependencies (preferrably only numpy, scipy; other dependencies should be assimilated into code-base)
+- Script for repeated running of simulation-analysis sequence.
 - (Re)organize documentation: put certain sections in separate files
 
 
@@ -114,7 +113,7 @@ Python version requirement and dependencies
 ===========================================
 Python 3.6 or newer is needed to run all of the code. We did not test with older versions of Python.
 
-The aim is to have a monolithic code-base that only depends on Python 3.x, its standard modules, and ``numpy``, ``scipy`` and ``matplotlib``. Any other external modules that we use (currently: the brilliant ``tifffile``, the lovely ``tdqm`` and the nice ``python-tabular``) have been directly incorporated ("assimilated") by copying their source code into the ``ddm_toolkit`` code tree.
+The aim is to have a monolithic code-base that only depends on Python 3.x, its standard modules, and ``numpy``, ``scipy`` and ``matplotlib``. Any other external modules that we use (currently: ``tifffile``, ``tdqm``, ``python-tabular`` and ``videofig``) have been directly incorporated ("assimilated") by copying their source code into the ``ddm_toolkit`` code tree.
 
 
 Vocabulary
@@ -230,11 +229,14 @@ Typically, dx=dy
 tifffile
 --------
 
+If `Christoph Gohlke's 'tifffile'`_ Python package has been installed, ``ddm-toolkit`` will use that version, because it is likely the more recent version. (Our tip: use conda + Conda-forge for installing packages).
 
-This toolkit contains a 'hard' copy of a fork of Christoph Gohlke's 'tifffile', for reading TIFF image sequences. See: `https://github.com/mhvwerts/tifffile`_
+.. _Christoph Gohlke's 'tifffile': https://github.com/cgohlke/tifffile
+
+However, ``ddm-toolkit`` includes a copy of a legacy version of ``tifffile``, that will be used if a system ``tifffile`` is not available. See: `https://github.com/mhvwerts/tifffile`_
 
 .. _https://github.com/mhvwerts/tifffile: https://github.com/mhvwerts/tifffile
 
-In certain cases, a huge speed-up for decoding TIFF is obtained by including a compiled C function. In order to compile it in your favorite environment, go to ``./tifffile/`` and run ``python build_c.py build_ext --inplace``. This will generate a compiled binary module that is used by `tifffile` to speed up TIFF decoding.
+In certain cases, a huge speed-up for decoding TIFF using the legacy ``tifffile`` is obtained by including a compiled C function. In order to compile it in your favorite environment, go to ``./tifffile/`` and run ``python build_c.py build_ext --inplace``. This will generate a compiled binary module that is used by ``tifffile`` to speed up TIFF decoding.
 
 

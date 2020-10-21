@@ -11,7 +11,7 @@ from ddm_toolkit.simulation import random_coordinates
 from ddm_toolkit.simulation import imgsynth1
 from ddm_toolkit.simulation import imgsynth2
 
-from utils.tabulate import tabulate
+from ddm_toolkit.misc.tabulate import tabulate
 
 # ==============================
 # SIMULATION/ANALYSIS PARAMETERS

@@ -1,6 +1,9 @@
-from .tifffile import imsave, imread, imshow, TiffFile, TiffWriter, TiffSequence, FileHandle, lazyattr, natural_sorted, decode_lzw, stripnull, memmap, stripnull, format_size, squeeze_axes, create_output, repeat_nd, product
+from .tifffile import imsave, imread, imshow, TiffFile, TiffWriter,\
+     TiffSequence, FileHandle, lazyattr, natural_sorted, decode_lzw,\
+     stripnull, memmap, stripnull, format_size, squeeze_axes, create_output,\
+     repeat_nd, product
 
-__version__ = '0.15.1'
+__version__ = '0.15.1 (legacy tifffile_fork)'
 __all__ = (
     'imsave', 'imread', 'imshow', 'TiffFile', 'TiffWriter', 'TiffSequence',
     # utility functions used in oiffile and czifile
