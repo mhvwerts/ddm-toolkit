@@ -17,7 +17,7 @@ from configparser import ConfigParser
 import numpy as np
 import matplotlib.pyplot as plt
 
-from utils.videofig import videofig 
+from ddm_toolkit.misc.videofig import videofig 
 
 
 # Read parameter file, default to "simul0_default_params.txt"

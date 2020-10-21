@@ -8,12 +8,11 @@ simulation.py:
 
 from time import time
 
-from utils.tqdm import tqdm
+from .misc.tqdm import tqdm
 
 import numpy as np
 from numpy.random import Generator, PCG64
 from scipy.ndimage import gaussian_filter
-from ddm_toolkit.ddm import ImageStructureEngine
 
 
 # Instantiate pseudo-random number generator (PRNG) for simulation/

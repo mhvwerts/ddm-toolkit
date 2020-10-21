@@ -15,7 +15,7 @@ from configparser import ConfigParser
 
 import numpy as np
 
-from utils.tqdm import tqdm
+from ddm_toolkit.misc.tqdm import tqdm
 
 from ddm_toolkit.simulation import brownian_softbox, random_coordinates
 from ddm_toolkit.simulation import imgsynth2
