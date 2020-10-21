@@ -112,7 +112,7 @@ This toolkit is being maintained and developed by Martinus Werts (CNRS and ENS R
 
 Python version requirement and dependencies
 ===========================================
-Python 3.6 or newer is needed to run all of the code: we introduced some static type checking, here and there. We did not test with older versions of Python.
+Python 3.6 or newer is needed to run all of the code. We did not test with older versions of Python.
 
 The aim is to have a monolithic code-base that only depends on Python 3.x, its standard modules, and ``numpy``, ``scipy`` and ``matplotlib``. Any other external modules that we use (currently: the brilliant ``tifffile``, the lovely ``tdqm`` and the nice ``python-tabular``) have been directly incorporated ("assimilated") by copying their source code into the ``ddm_toolkit`` code tree.
 
@@ -235,6 +235,6 @@ This toolkit contains a 'hard' copy of a fork of Christoph Gohlke's 'tifffile', 
 
 .. _https://github.com/mhvwerts/tifffile: https://github.com/mhvwerts/tifffile
 
-In certain cases, a huge speed-up for decoding TIFF is obtained by including a compiled C function. In order to compile it in your favorite environment, go to ``./tifffile/`` and run ``python build_c.py build_ext --inplace``. This will generate an importable library file.
+In certain cases, a huge speed-up for decoding TIFF is obtained by including a compiled C function. In order to compile it in your favorite environment, go to ``./tifffile/`` and run ``python build_c.py build_ext --inplace``. This will generate a compiled binary module that is used by `tifffile` to speed up TIFF decoding.
 
 

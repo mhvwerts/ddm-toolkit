@@ -22,8 +22,8 @@ https://cecill.info/index.en.html
 import numpy as np
 from scipy.optimize import curve_fit
 
+## prepare for clean-up
 # from lmfit import Model 
-# TODO: completely remove lmfit-related code (clean-up)
 
 from ddm_toolkit.functions import closestidx, conf95
 

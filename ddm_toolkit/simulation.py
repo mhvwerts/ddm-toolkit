@@ -255,5 +255,3 @@ def imgsynth2(px, py, w, x0, y0, x1, y1,
         img2 = img2hi
     return img2
 
-
-
