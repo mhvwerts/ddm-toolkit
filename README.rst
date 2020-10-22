@@ -71,17 +71,17 @@ And finally, analysis of the ISF in terms of the simple Brownian model:
 
 The simulation and analysis parameters required by the scripts are set using a (default) parameter file ``simul0_default_params.txt``. Alternative parameter files may be used by supplying their filename as an argument to the Python script.
 
-Execution of this sequence of scripts is a way of testing the code base, in a basic and somewhat cumbersome fashion. A nice aspect is that intermediate results (synthetic video, ISF) are stored in the ``datafiles`` directory, so that it is not necessary to re-calculate them over and over when experimenting with a script or an analysis.
+Execution of this sequence of scripts is a basic way of testing the code base. A nice aspect is that intermediate results (synthetic video, ISF) are stored in the ``datafiles`` directory, so that it is not necessary to re-calculate them over and over when experimenting with a script or an analysis.
 
 
 -----
 TO DO
 -----
 
+- Include ``simul1`` ... ``simul5`` sequence in ``pytest``
 - Add an example of processing a real video file
 - Script for repeated running of simulation-analysis sequence.
-- (Re)organize documentation: put certain sections in separate files
-
+- (Re)organize documentation.
 
 ---------------
 Other DDM codes
