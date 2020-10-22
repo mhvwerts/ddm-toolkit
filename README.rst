@@ -23,8 +23,9 @@ Our DDM toolkit has several specific original features:
 Installation
 ------------
 
-There is no specific installable package yet for this toolkit, and it does not need separate installation. In order to use the toolkit, download this Github repository as a ZIP file (or 'clone' the repository) and unpack it in a separate folder on your computer. The scripts can be run from the command line using a suitable Python environment. We recommend Anaconda Miniconda3 with the `conda-forge`_ channel. The toolkit requires Python 3.6 or higher, and only needs ``numpy``, ``scipy``, ``matplotlib``.
+There is no specific installable package yet for this toolkit, and it does not need separate installation. In order to use the toolkit, download this Github repository as a ZIP file (or 'clone' the repository) and unpack it in a separate folder on your computer. The scripts can be run from the command line using a suitable Python environment. We recommend Anaconda Miniconda3 with the `conda-forge`_ channel. The toolkit requires Python 3.6 or higher, and only needs ``numpy``, ``scipy``, ``matplotlib``. We also recommend that you install `C. Gohlke's tifffile`_. (``conda install tifffile``, optional)
 
+.. _C. Gohlke's tifffile: https://github.com/cgohlke/tifffile
 
 -----------
 Basic usage
@@ -233,10 +234,10 @@ If `Christoph Gohlke's 'tifffile'`_ Python package has been installed, ``ddm-too
 
 .. _Christoph Gohlke's 'tifffile': https://github.com/cgohlke/tifffile
 
-However, ``ddm-toolkit`` includes a copy of a legacy version of ``tifffile``, that will be used if a system ``tifffile`` is not available. See: `https://github.com/mhvwerts/tifffile`_
+``ddm-toolkit`` includes a copy of a legacy version of ``tifffile``, that will be used if a system ``tifffile`` is not available. See: `https://github.com/mhvwerts/tifffile`_
 
 .. _https://github.com/mhvwerts/tifffile: https://github.com/mhvwerts/tifffile
 
-In certain cases, a huge speed-up for decoding TIFF using the legacy ``tifffile`` is obtained by including a compiled C function. In order to compile it in your favorite environment, go to ``./tifffile/`` and run ``python build_c.py build_ext --inplace``. This will generate a compiled binary module that is used by ``tifffile`` to speed up TIFF decoding.
+In certain cases, a huge speed-up for decoding TIFF using the legacy ``tifffile`` is obtained by including a compiled C function. In order to compile it in your favorite environment, go to ``./ddm_toolkit/misc/tifffile_fork/`` and run ``python build_c.py build_ext --inplace``. This will generate a compiled binary module that is used by ``tifffile`` to speed up TIFF decoding.
 
 
