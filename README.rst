@@ -78,9 +78,8 @@ Execution of this sequence of scripts is a basic way of testing the code base. A
 TO DO
 -----
 
-- Include ``simul1`` ... ``simul5`` sequence in ``pytest``
+- Script with repeated simulation-analysis sequence (+ single-cycle script in pytest)
 - Add an example of processing a real video file
-- Script for repeated running of simulation-analysis sequence.
 - (Re)organize documentation.
 
 ---------------
