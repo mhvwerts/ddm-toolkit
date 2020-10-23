@@ -1,4 +1,5 @@
 import os
+import os.path
 
 from sys import argv
 import numpy as np
@@ -79,7 +80,10 @@ def generate_datafile(fname):
 
 
 def get_datafilename():
-    fname = 'datafiles/imageseq_pytest_tests.npz'
+    if os.path.exists('datafiles'):
+        fname = 'datafiles/imageseq_pytest_tests.npz'
+    else:
+        fname = '../datafiles/imageseq_pytest_tests.npz'
     if os.path.isfile(fname):
         print('file with test image sequence exists')
     else:
