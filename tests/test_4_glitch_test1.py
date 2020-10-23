@@ -30,6 +30,9 @@ try:
 except:
     from tests.datafile import get_datafilename
 
+print('')
+print('4. Glitch detection test')
+
 #===
 #process parameters
 #----------

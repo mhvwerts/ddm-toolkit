@@ -2,8 +2,20 @@
 # -*- coding: utf-8 -*-
 from time import time
 import numpy as np
-from ddm_toolkit import ImageStructureEngine, ImageStructureFunction
+
 import matplotlib.pyplot as plt
+
+
+# somewhat clumsy try...except imports
+# to enable these test scripts to be run independently from pytest
+# for example using spyder
+try:
+    from ddm_toolkit import ImageStructureEngine, ImageStructureFunction
+except:
+    import sys
+    sys.path.append('./..')
+    from ddm_toolkit import ImageStructureEngine, ImageStructureFunction
+
 
 try:
     from datafile import get_datafilename
@@ -16,6 +28,7 @@ img=im['img']
 im.close()
 Ni=img.shape[0]
 
+print('')
 print('2. Simple test run (default parameters) plus radial averaging')
 
 ISeng_Nbuf = 100
@@ -50,5 +63,12 @@ for taufi in range(len(ISF_a.tauf)):
 print('Wait for graph windows to close...')
 plt.pause(2.0)
 
-print('TO DO: test_2 make test assert functions!')
-#assert 1==1
+print('TODO: test_2: add many more tests')
+
+
+def test_ISFcount():
+    assert ISeng.ISFcount == (Ni - ISeng_Nbuf)
+    
+def test_tauf():
+    assert len(ISF_a.tauf) == (ISeng_Nbuf + 1)
+    

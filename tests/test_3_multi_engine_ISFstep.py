@@ -16,7 +16,8 @@ img=im['img']
 im.close()
 Ni=img.shape[0]
 
-print('5. Test run: multi-engine run')
+print('')
+print('3. Test run: multi-engine run')
 
 teststep = 10
 ISeng_Nbuf = 100

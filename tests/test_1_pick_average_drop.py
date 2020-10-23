@@ -33,6 +33,7 @@ Ni=img.shape[0]
 #        apodization = 'No', fillbuf = True
 #        )
 
+print('')
 print('1. Testing pick, average, drop logic')
 # this is done by varying the values supplied to pick, avg and drop
 #  and checking the behaviour of the internal counter variables
