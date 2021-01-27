@@ -358,10 +358,13 @@ class ImageStructureEngine:
         """save the ISF to an NPZ file, including the ISFengine settings.
         
         This will not include the framebuffer, since it takes up quite 
-        some memory and is not useful for further analysis.
+        some memory and is not useful for further analysis. This 'save'
+        method is intended to save the result of ISF calculation, rather
+        than storing the complete state of the ISFengine object.        
+        
         The accumulated ISF in ISFaccum will be 'fftshifted' into 
-        displayable and easily processable form. This will save the 
-        output of in a file  outputfile.npz which contains Npx, Nbuf, 
+        displayable and easily processable form. The output will be 
+        written to a file 'outputfile.npz' which contains Npx, Nbuf, 
         ISFcount, totalframes, preNf, premode, ISF.
         ISFcount = Total no. of ISF in file. 
         totalframes = Total no. of frames processed.
