@@ -16,7 +16,7 @@ from configparser import ConfigParser
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ddm_toolkit.misc.tqdm import tqdm
+from ddm_toolkit.tqdm import tqdm
 
 from ddm_toolkit import ImageStructureEngine
 from ddm_toolkit import ImageStructureFunction

@@ -17,7 +17,7 @@ It requires to set a maximum number of processed ISFs
 """
 
 import numpy as np
-from .misc.tifftools import TiffFile
+from .tifftools import TiffFile
 from .ddm import ImageStructureEngine
 
 class GlitchEngine:

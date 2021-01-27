@@ -8,7 +8,7 @@ simulation.py:
 
 from time import time
 
-from .misc.tqdm import tqdm
+from tqdm import tqdm
 
 import numpy as np
 from numpy.random import Generator, PCG64
