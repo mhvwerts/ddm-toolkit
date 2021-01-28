@@ -88,7 +88,7 @@ CHANGELOG (for this module)
 
 import numpy as np
 
-BUFTYPE = np.float
+BUFTYPE = np.float32 # this used to be np.float
 
 class ImageStructureEngine:
     """Sequential, cumulative image structure function (ISF) engine.
@@ -386,6 +386,80 @@ class ImageStructureEngine:
                  ISF = fullISF, 
                  tauf = self.tauf, uy = self.uy, ux = self.ux
                  )
+
+
+class ImageStructureEngine2(ImageStructureEngine):
+    """Alternative Image Structure Engine based on ImageStructureEngine
+    
+    This alternative version will buffer up all FFT calculations such
+    that the entire stack of 2D FFTs for each new incoming frame
+    can be launched with a single FFT command. This should open the road 
+    to facile optimization/speed-up of this
+    computationally intensive process (use of multiprocessing and/or GPU)
+    
+    GPU -> CuPy
+    CPU -> multiprocessing FFT
+        -> pyFFTW??
+    
+    #TODO
+    FFT2D boosting in Python
+        https://www.jparker.me/blog/fft_2d_performance
+    
+    simple pyfftw:
+        https://hgomersall.github.io/pyFFTW/pyfftw/interfaces/interfaces.html
+    
+    some hints on boosting performance using pyFFTW
+        https://github.com/pyFFTW/pyFFTW/issues/264
+        
+    #TODO also:
+        use FFT linearity!
+        (don't know if this will properly work in 2D but we'll have to try)
+        FFT(a-b) = FFT(a)-FFT(b)
+        this might GREATLY speed up ISFengine 
+    
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print('*** USING ImageStructureEngine2 ***')
+        self.Nfftbuff = self.Nbuf // self.ISFstep
+        self.fftbuff = np.zeros((self.Nfftbuff, self.Npx, self.Npx),
+                                dtype = BUFTYPE)
+    
+
+    def _push(self, binframe):
+        """directly push a new frame onto the buffer. When the buffer is 
+        full, first calculate the ISF between inframe and all images in
+        buffer. Then, add this to cumulative ISFaccum
+        """
+        assert binframe.dtype == BUFTYPE, 'binframe should be of dtype BUFTYPE'
+        if self.bufN < self.Nbuf:
+            self.framebuf[self.bufN] = binframe
+            self.bufN += 1
+        else:
+            frame_t_dt = binframe
+            
+            # Fill up FFT buffer
+            for itau,pt in enumerate(self.frameptr[-1::-1]):
+                if ((itau+1) % self.ISFstep == 0):
+                    frame_t = self.framebuf[pt,:,:]
+                    DI = frame_t_dt - frame_t
+                    self.fftbuff[itau//self.ISFstep,:,:] = DI[:,:]
+                    
+            # DO FFT (on stack of images) fft2 will use the two last dimensions
+            # for FFT and will use the first dimension as a stack
+            #TODO: per
+            FFTstack = np.fft.fft2(self.fftbuff)
+            ISF = np.abs(FFTstack)**2
+            
+            # updating ISFaccum
+            for itau,pt in enumerate(self.frameptr[-1::-1]):
+                if ((itau+1) % self.ISFstep == 0):
+                    self.ISFaccum[itau+1,:,:] +=\
+                                        ISF[itau//self.ISFstep,:,:]
+                                        
+            self.ISFcount+=1 # update ISF accumulation counter
+            self.frameptr = np.roll(self.frameptr, -1) 
+            self.framebuf[self.frameptr[-1]] = binframe
 
          
         

@@ -1,0 +1,39 @@
+[simulation]
+# D  [µm2 s-1]  Fickian diffusion coefficient of the particles
+# Np []         number of particles
+# bl [µm]       length of simulation box sides (square box)
+# Nt []         number of time steps => number of frames
+# T  [s]        total time
+D = 0.1
+Np = 200
+bl = 200.
+Nt = 500
+T = 10000.
+
+[imgsynth]
+# img_border [µm]       width of border around simuation box (may be negative!)
+# img_w      [µm]       width parameter of 2D Gaussian to simulate optical transfer function
+# img_Npx    []
+# img_file              file (path) name for storing video stack
+img_border = 16.0
+img_w = 2.0
+img_Npx = 256
+img_file = datafiles/simul1_result_video.npz
+
+[animation]
+# Nframes   []  number of frames to play back (-1 means all frames)
+Nframes = -1
+
+[ISFengine]
+# ISE_Nbuf []    buffer size of image structure engine
+# ISF_fpn        file (path) name for storing/retrieving image structure function
+ISE_Nbuf = 100
+ISF_fpn = datafiles/simul3_result_ISF.npz
+
+[analysis_brownian]
+# D_guess    [µm2 s-1]   Initial guess of diffusion coefficient
+# in this example use a value that is a factor of 11 off from the input value
+D_guess = 1.1
+
+
+
