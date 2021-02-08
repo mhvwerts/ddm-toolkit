@@ -51,7 +51,7 @@ CHANGELOG (for this module)
 ---------------------------
 200424
     - change variable names: qx and qy become ux and uy (to avoid
-      confusion with existing literature, factor 2\pi)
+      confusion with existing literature, factor 2 pi)
     - qx, qy and q re-introduced in the ImageStructureFunction,
       derived from ux and uy: qx = 2*np.pi*ux, qy = 2*np.pi*uy
 

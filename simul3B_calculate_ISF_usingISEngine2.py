@@ -20,13 +20,14 @@ from ddm_toolkit.tqdm import tqdm
 
 #from ddm_toolkit import ImageStructureEngine
 #Here we use the experimental ImageStructureEngine2
+#   which may be used in speed-up of FFT
 #TODO: incorporate into ddm_toolkit/__init__.py imports
 from ddm_toolkit.ddm import ImageStructureEngine2 as ImageStructureEngine
 # Test
 # [2021-02-07]: using same particle data 
 #  simul3B: D (fit): 0.9735197764364034 µm2/s (+/-  0.02701189447348729 , 95% CI)
 #  simul3 : D (fit): 0.9735197764364034 µm2/s (+/-  0.02701189447348729 , 95% CI)
-#YES!!
+#indeed
 # the two operations give the same result
 
 

@@ -11,7 +11,7 @@
 # frm_Npreview      []     number of frames to be previewed by previewer
 # display_overdrive []     parameter to enhance contrast of video display
 #
-pathname  = /home/werts/Desktop/temp-copy-videos-suzon/Au100 _LA-20times-20ms-cut.tif
+pathname  = datafiles/Au100_LA-20times-20ms-cut-test.tif
 frm_start = 9
 frm_end   = -1
 ROI_x     = 650
