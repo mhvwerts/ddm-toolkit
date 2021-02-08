@@ -498,15 +498,17 @@ class ImageStructureEngine2(ImageStructureEngineBase):
                     DI = frame_t_dt - frame_t
                     self.fftbuff[itau//self.ISFstep,:,:] = DI[:,:]
                     
-            # DO FFT (on stack of images) fft2 will use the two last dimensions
-            # for FFT and will use the first dimension as a stack
-            #TODO: per
+            # DO FFT (on stack of images) 
+            # fft2 will use the two last dimensions for fft
+            # and the first dimension makes the stack
             FFTstack = np.fft.fft2(self.fftbuff)
             
             ## original
             # ISF = np.abs(FFTstack)**2
             ## faster:
             ISF = FFTstack.real**2 + FFTstack.imag**2
+            ## Numba may make this even faster, 
+            # but then it is not 'pure' numpy/Python anymore
             
             # updating ISFaccum
             for itau,pt in enumerate(self.frameptr[-1::-1]):
@@ -533,7 +535,12 @@ class ImageStructureEngine3(ImageStructureEngineBase):
     (2x faster overall). The speed-up might become even bigger using Numba
         https://stackoverflow.com/questions/30437947/most-memory-efficient-way-to-compute-abs2-of-complex-numpy-ndarray
         
-    Total speed increase: 3x compared to original ISFengine
+    Total speed increase: 3x compared to original ISFengine, while still being
+    'pure numpy'.
+    
+    The ImageStructureEngine3 algorithm is probably somewhat similar to the one proposed
+    by Cerchiari et al. (Rev. Sci. Instrum. 83, 106101 (2012)) 
+    https://doi.org/10.1063/1.4755747
 
     """
     def __init__(self, *args, **kwargs):
@@ -571,6 +578,7 @@ class ImageStructureEngine3(ImageStructureEngineBase):
                     ## first variant: (~2 times faster than original)
                     ISF = (framefft_t_dt.real - framefft_t.real)**2 \
                          + (framefft_t_dt.imag - framefft_t.imag)**2
+                    ## numba might make this faster (see docstring)
                     
                     ## second variant: (slightly slower than first var)
                     # dfft = framefft_t_dt - framefft_t
