@@ -47,8 +47,27 @@ References
     https://dx.doi.org/10.1140/epje/i2017-11587-3
 
 
+
 CHANGELOG (for this module)
 ---------------------------
+
+210208
+    - implemented two alternative ImageStructureEngine classes.
+    
+      ImageStructureEngine2 puts all FFTs to be calculated into a single
+      stack, and then does all FFTs using a single call. This will facilitate
+      interfacing with CUDA or FFTW. 
+      This alternative engine is promising for simple CUDA/FFTW speed up.
+      **HELP NEEDED**
+      
+      ImageStructureEngine3 greatly reduces the number of individual
+      FFTs to be calculated, by using linearity of FFT and storing FFTs already
+      calculated. "Only" 50% perfomance boost observed; the subsequent complex
+      arithmetic (substracting, abs value) is probably heavy as well.
+      I could imagine that the algorithm might run entirely on
+      a GPU, with all buffering and operations taking place directly on GPU.
+      **HELP NEEDED**
+
 200424
     - change variable names: qx and qy become ux and uy (to avoid
       confusion with existing literature, factor 2 pi)
@@ -88,106 +107,29 @@ CHANGELOG (for this module)
 
 import numpy as np
 
-BUFTYPE = np.float32 # this used to be np.float
+BUFTYPE = np.float32       # might be tuned later for performance
+                           # np.float32 is ~25% faster with original ISFEngine
+                           #   on my computer
 
-class ImageStructureEngine:
-    """Sequential, cumulative image structure function (ISF) engine.
-    
-    This engine processes an arbitrarily long sequence of images, using
-    the minimal amount of memory for calculating the ISF, averaging
-    the ISF over many images, if the sequence length permits.
-    
-    The entire calculation is carried out in pixel-frame units, i.e.
-    time lags are in numbers of frames, the Fourier transforms give
-    'inverse pixel' frequencies. Book-keeping concerning the conversion
-    to real world units (viz. µm/pixel and s/frame) should be done
-    elsewhere.
-    
-    Instantiation of the class prepares a ImageStructureEngine for 
-    receiving and processing an image sequence. Several of these engines
-    can be created 'in parallel', having different processing options.
+FFTBUFTYPE = np.complex64  # might be tuned later for performance
+                           #    did not find speed difference between complex64
+                           #    and complex128 on my compyter
 
-    Instantiation
-    -------------
-    ise = ImageStructureEngine(
-        Npx, Nbuf,  ISFstep = 1, apodization = 'No',
-        pick = 1, avg = 1, drop = 0, fillbuf = True,
-        dummyrun = False
-        )
-        
-    Parameters
-    ----------
-    Npx : int
-        Number of pixel of each frame of input; must be a positive
-        multiple of 2 
-    Nbuf : int
-        Buffer size, number of time lags of the ISF that will be
-        calculated; any positive non-zero integer
-    ISFstep : int: step-size that defines which lag times of the ISF in
-        the buffer will be calculated. Default = 1 which means that all
-        lag times will be calculated. ISFstep = 10 will only calculate
-        the ISF at lags 0, 10, 20... Nbuf, the other ISF lags will be
-        zero. This is different from the 'pick' parameter (see 'Low-level'
-        parameters below), since the frames actually do fill up the FIFO
-        frame buffer, and contribute to the calculation of the ISF at 
-        some point in the sequence. This gives better ISFs at long times,
-        at the expense of memory usage, but does avoid long calculation
-        times by only calculating some time lags.
-        #TODO propose a logarithmic scale step-size! => we should make
-        a new parameter that is just a list of the taufs for which the ISF
-        is actually calculated. This will also change the structure of
-        ISFaccum.
-    apodization : str : 'No' or 'Blackman-Harris'
-        If not 'No', a 2D Blackman-Harris window will be applied to
-        the incoming image before further processing
-        
-    Low-level tweak parameters
-    --------------------------
-    pick : int (optional)
-        Pick only every Npick-th image for processing into the FIFO 
-        image buffer. The lag times will then be spaced by Npick. The
-        ISF will cover lags 0 until Npick*Nbuf
-    avg : int (optional)
-        Instead of picking one image, take the average over Navg
-        subsequent images. Allowed values: 1...Npick. 
-    drop : int (optional)
-        Before actually starting the engine, drop Ndrop images. This is
-        intended for centering the picking by one engine around the
-        averaging-picking by another engine.
-    fillbuf : bool (future parameter, not fully implemented)
-        Normally (fillbuf == True) the ISF calculation buffer will
-        first be filled BEFORE any ISF is calculated. This way, all lag
-        times of the ISF will be calculated over the same number of 
-        image pairs. NOT IMPLEMENTED YET: fillbuf==False, in which case 
-        ISFs would be calculated for those lags that are already in the
-        buffer.
-        
-    Attributes
-    ----------
-    tau : int
-        Lag times of the ISF (in frame units).
-    ux, uy : float
-        Spatial frequency coordinates in x and y direction of the 2D FFT.
-        These are in 'inverse pixel' units. They are not the
-        "radial pixel frequency" q
-            q = 2 * np.pi * u
-        Spatial sample distance is always 1.0 pixel
-    ISFcount : int
-        Number of frames over which the total ISF has been
-        accumulated. (This is a single int value for fillbuf == True,
-        but would be a vector for fillbuf == False)
-    (to be continued)
-        
-    Remarks
-    -------
-    All calculations are done in floating point. (BUFTYPE = np.float; 
-    do not change). Incoming images are converted to floating point.
+
+class ImageStructureEngineBase:
+    """Base class for various ImageStructureEngine models
     
-    Only averaging is implemented, since summing of images was found
-    to be not useful. The averages are calculated in floating point.
-    """    
+    This class should not be used directly as an ImageStructureEngine,
+    but should be sub-classed
+    
+    see below:
+        ImageStructureEngine
+        ImageStructureEngine2
+        ImageStructureEngine3
+    
+    """
     def __init__(
-            self, Npx, Nbuf,  ISFstep = 1, apodization = 'No',
+            self, Npx, Nbuf, apodization = 'No', ISFstep = 1, 
             pick = 1, avg = 1, drop = 0, fillbuf = True,
             dummyrun = False
             ):
@@ -198,7 +140,6 @@ class ImageStructureEngine:
         assert Nbuf > 0, 'Nbuf should be positive'
         self.Nbuf = Nbuf
         self.ISFstep = ISFstep
-        self.framebuf = np.zeros((Nbuf,Npx,Npx), dtype = BUFTYPE)
         self.frameptr = np.arange(Nbuf) # pointers for LIFO operation 
         #                                 of buffer
         self.framesum = np.zeros((Npx,Npx), dtype = BUFTYPE)
@@ -258,35 +199,8 @@ class ImageStructureEngine:
         
         self.bufdtype = BUFTYPE
 
-    def _ISF(self, img_t, img_t_dt):
-        """calculate the Image Structure Function between
-        img_t_dt (t + delta_t) and img_t (t)
-        """
-        if self.dummyrun:
-            return np.ones_like(img_t)
-        else:
-            DI= img_t_dt - img_t
-            return np.abs(np.fft.fft2(DI))**2
-    
     def _push(self, binframe):
-        """directly push a new frame onto the buffer. When the buffer is 
-        full, first calculate the ISF between inframe and all images in
-        buffer. Then, add this to cumulative ISFaccum
-        """
-        assert binframe.dtype == BUFTYPE, 'binframe should be of dtype BUFTYPE'
-        if self.bufN < self.Nbuf:
-            self.framebuf[self.bufN] = binframe
-            self.bufN += 1
-        else:
-            frame_t_dt = binframe
-            for itau,pt in enumerate(self.frameptr[-1::-1]):
-                if ((itau+1) % self.ISFstep == 0):
-                    frame_t = self.framebuf[pt,:,:]
-                    self.ISFaccum[itau+1,:,:] +=\
-                                        self._ISF(frame_t, frame_t_dt)
-            self.ISFcount+=1 # update ISF accumulation counter
-            self.frameptr = np.roll(self.frameptr, -1) 
-            self.framebuf[self.frameptr[-1]] = binframe
+        pass # in this baseclass we might even raise an error when calling this?
 
     def push(self, inframe):
         """push a frame onto the buffer after preprocessing
@@ -388,7 +302,147 @@ class ImageStructureEngine:
                  )
 
 
-class ImageStructureEngine2(ImageStructureEngine):
+
+class ImageStructureEngine(ImageStructureEngineBase):
+    """Sequential, cumulative image structure function (ISF) engine.
+    
+    This engine processes an arbitrarily long sequence of images, using
+    the minimal amount of memory for calculating the ISF, averaging
+    the ISF over many images, if the sequence length permits.
+    
+    The entire calculation is carried out in pixel-frame units, i.e.
+    time lags are in numbers of frames, the Fourier transforms give
+    'inverse pixel' frequencies. Book-keeping concerning the conversion
+    to real world units (viz. µm/pixel and s/frame) should be done
+    elsewhere.
+    
+    Instantiation of the class prepares a ImageStructureEngine for 
+    receiving and processing an image sequence. Several of these engines
+    can be created 'in parallel', having different processing options.
+    
+    This is the original version, without any optimizations of the calculations.
+    It is the 'tried and tested' reference version.
+    Any optimizations should be implemented in other subclasses
+    of ImageStructureEngineBase.
+
+    Instantiation
+    -------------
+    ise = ImageStructureEngine(
+        Npx, Nbuf,  ISFstep = 1, apodization = 'No',
+        pick = 1, avg = 1, drop = 0, fillbuf = True,
+        dummyrun = False
+        )
+        
+    Parameters
+    ----------
+    Npx : int
+        Number of pixel of each frame of input; must be a positive
+        multiple of 2 
+    Nbuf : int
+        Buffer size, number of time lags of the ISF that will be
+        calculated; any positive non-zero integer
+    ISFstep : int: step-size that defines which lag times of the ISF in
+        the buffer will be calculated. Default = 1 which means that all
+        lag times will be calculated. ISFstep = 10 will only calculate
+        the ISF at lags 0, 10, 20... Nbuf, the other ISF lags will be
+        zero. This is different from the 'pick' parameter (see 'Low-level'
+        parameters below), since the frames actually do fill up the FIFO
+        frame buffer, and contribute to the calculation of the ISF at 
+        some point in the sequence. This gives better ISFs at long times,
+        at the expense of memory usage, but does avoid long calculation
+        times by only calculating some time lags.
+        #TODO propose a logarithmic scale step-size! => we should make
+        a new parameter that is just a list of the taufs for which the ISF
+        is actually calculated. This will also change the structure of
+        ISFaccum.
+    apodization : str : 'No' or 'Blackman-Harris'
+        If not 'No', a 2D Blackman-Harris window will be applied to
+        the incoming image before further processing
+        
+    Low-level tweak parameters
+    --------------------------
+    pick : int (optional)
+        Pick only every Npick-th image for processing into the FIFO 
+        image buffer. The lag times will then be spaced by Npick. The
+        ISF will cover lags 0 until Npick*Nbuf
+    avg : int (optional)
+        Instead of picking one image, take the average over Navg
+        subsequent images. Allowed values: 1...Npick. 
+    drop : int (optional)
+        Before actually starting the engine, drop Ndrop images. This is
+        intended for centering the picking by one engine around the
+        averaging-picking by another engine.
+    fillbuf : bool (future parameter, not fully implemented)
+        Normally (fillbuf == True) the ISF calculation buffer will
+        first be filled BEFORE any ISF is calculated. This way, all lag
+        times of the ISF will be calculated over the same number of 
+        image pairs. NOT IMPLEMENTED YET: fillbuf==False, in which case 
+        ISFs would be calculated for those lags that are already in the
+        buffer.
+        
+    Attributes
+    ----------
+    tau : int
+        Lag times of the ISF (in frame units).
+    ux, uy : float
+        Spatial frequency coordinates in x and y direction of the 2D FFT.
+        These are in 'inverse pixel' units. They are not the
+        "radial pixel frequency" q
+            q = 2 * np.pi * u
+        Spatial sample distance is always 1.0 pixel
+    ISFcount : int
+        Number of frames over which the total ISF has been
+        accumulated. (This is a single int value for fillbuf == True,
+        but would be a vector for fillbuf == False)
+    (to be continued)
+        
+    Remarks
+    -------
+    All calculations are done in floating point. (BUFTYPE = np.float).
+    Incoming images are converted to floating point.
+    
+    Only averaging is implemented, since summing of images was found
+    to be not useful. The averages are calculated in floating point.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print('*** using ImageStructureEngine (the original) ***')
+        self.framebuf = np.zeros((self.Nbuf, self.Npx, self.Npx),
+                                 dtype = BUFTYPE)
+        
+    def _ISF(self, img_t, img_t_dt):
+        """calculate the Image Structure Function between
+        img_t_dt (t + delta_t) and img_t (t)
+        """
+        if self.dummyrun:
+            return np.ones_like(img_t)
+        else:
+            DI= img_t_dt - img_t
+            return np.abs(np.fft.fft2(DI))**2
+    
+    def _push(self, binframe):
+        """directly push a new frame onto the buffer. When the buffer is 
+        full, first calculate the ISF between inframe and all images in
+        buffer. Then, add this to cumulative ISFaccum
+        """
+        assert binframe.dtype == BUFTYPE, 'binframe should be of dtype BUFTYPE'
+        if self.bufN < self.Nbuf:
+            self.framebuf[self.bufN] = binframe
+            self.bufN += 1
+        else:
+            frame_t_dt = binframe
+            for itau,pt in enumerate(self.frameptr[-1::-1]):
+                if ((itau+1) % self.ISFstep == 0):
+                    frame_t = self.framebuf[pt,:,:]
+                    self.ISFaccum[itau+1,:,:] +=\
+                                        self._ISF(frame_t, frame_t_dt)
+            self.ISFcount+=1 # update ISF accumulation counter
+            self.frameptr = np.roll(self.frameptr, -1) 
+            self.framebuf[self.frameptr[-1]] = binframe
+
+
+
+class ImageStructureEngine2(ImageStructureEngineBase):
     """Alternative Image Structure Engine based on ImageStructureEngine
     
     This alternative version will buffer up all FFT calculations such
@@ -396,40 +450,39 @@ class ImageStructureEngine2(ImageStructureEngine):
     can be launched with a single FFT command. This should open the road 
     to facile optimization/speed-up of this
     computationally intensive process (use of multiprocessing and/or GPU)
+
+    It also contains an optimized calculation of np.abs(FFT)**2
     
     GPU -> CuPy
     CPU -> multiprocessing FFT
-        -> pyFFTW??
+        -> pyFFTW
     
     #TODO
     FFT2D boosting in Python
         https://www.jparker.me/blog/fft_2d_performance
     
-    simple pyfftw:
+    pyfftw:
         https://hgomersall.github.io/pyFFTW/pyfftw/interfaces/interfaces.html
-    
-    some hints on boosting performance using pyFFTW
         https://github.com/pyFFTW/pyFFTW/issues/264
-        
-    #TODO also:
-        use FFT linearity!
-        (don't know if this will properly work in 2D but we'll have to try)
-        FFT(a-b) = FFT(a)-FFT(b)
-        this might GREATLY speed up ISFengine 
-    
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        print('*** USING ImageStructureEngine2 ***')
+        print('*** using ImageStructureEngine2 ***')
+        self.framebuf = np.zeros((self.Nbuf, self.Npx, self.Npx),
+                                 dtype = BUFTYPE)
         self.Nfftbuff = self.Nbuf // self.ISFstep
         self.fftbuff = np.zeros((self.Nfftbuff, self.Npx, self.Npx),
                                 dtype = BUFTYPE)
-    
-
+ 
     def _push(self, binframe):
         """directly push a new frame onto the buffer. When the buffer is 
         full, first calculate the ISF between inframe and all images in
         buffer. Then, add this to cumulative ISFaccum
+        
+        In this alternative version, all difference images are first stored
+        in a image processing buffer.
+        The FFTs on the entire stack are obtained from a single call of
+        fft2.
         """
         assert binframe.dtype == BUFTYPE, 'binframe should be of dtype BUFTYPE'
         if self.bufN < self.Nbuf:
@@ -449,7 +502,11 @@ class ImageStructureEngine2(ImageStructureEngine):
             # for FFT and will use the first dimension as a stack
             #TODO: per
             FFTstack = np.fft.fft2(self.fftbuff)
-            ISF = np.abs(FFTstack)**2
+            
+            ## original
+            # ISF = np.abs(FFTstack)**2
+            ## faster:
+            ISF = FFTstack.real**2 + FFTstack.imag**2
             
             # updating ISFaccum
             for itau,pt in enumerate(self.frameptr[-1::-1]):
@@ -461,8 +518,75 @@ class ImageStructureEngine2(ImageStructureEngine):
             self.frameptr = np.roll(self.frameptr, -1) 
             self.framebuf[self.frameptr[-1]] = binframe
 
-         
+
+
+class ImageStructureEngine3(ImageStructureEngineBase):
+    """Alternative ImageStructureEngine using the linearity of FFT
+    
+    FFT(a-b) = FFT(a)-FFT(b)
         
+    which means that results of FFTs may be buffered and recalled
+    
+    In practice, this gives 'only' a 50% speed boost in the 'simul' cycle (1.5x faster)
+    
+    Additionally, we speed up calculation of magnitude squared of FFT difference.
+    (2x faster overall). The speed-up might become even bigger using Numba
+        https://stackoverflow.com/questions/30437947/most-memory-efficient-way-to-compute-abs2-of-complex-numpy-ndarray
+        
+    Total speed increase: 3x compared to original ISFengine
+
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print('*** using ImageStructureEngine3 ***')
+        self.framefftbuf = np.zeros((self.Nbuf, self.Npx, self.Npx),
+                                 dtype = FFTBUFTYPE)
+
+    
+    def _push(self, binframe):
+        """push the 2D FFT of incoming frame onto the buffer. When the buffer is 
+        full, calculate the ISF between inframe and all images in
+        buffer using the stored FFTs of the images.
+        Then, add this to cumulative ISFaccum
+        """
+        assert binframe.dtype == BUFTYPE, 'binframe should be of dtype BUFTYPE'
+        
+        #TODO: speed up
+        binframefft = np.fft.fft2(binframe) # fft may be sped up (FFTW, CUDA)
+        
+        if self.bufN < self.Nbuf:
+            self.framefftbuf[self.bufN,:,:] = binframefft[:,:]
+            self.bufN += 1
+        else:
+            framefft_t_dt = binframefft
+            
+            #TODO: speed up loop below (significant gain is expected here)
+            for itau,pt in enumerate(self.frameptr[-1::-1]):
+                if ((itau+1) % self.ISFstep == 0):
+                    framefft_t = self.framefftbuf[pt,:,:]
+                    
+                    ## originally:
+                    # ISF = np.abs(framefft_t_dt - framefft_t)**2
+                    
+                    ## first variant: (~2 times faster than original)
+                    ISF = (framefft_t_dt.real - framefft_t.real)**2 \
+                         + (framefft_t_dt.imag - framefft_t.imag)**2
+                    
+                    ## second variant: (slightly slower than first var)
+                    # dfft = framefft_t_dt - framefft_t
+                    # ISF = dfft.real**2 + dfft.imag**2
+                                       
+                    self.ISFaccum[itau+1,:,:] += ISF
+
+                    
+            self.ISFcount+=1 # update ISF accumulation counter
+            self.frameptr = np.roll(self.frameptr, -1) 
+            self.framefftbuf[self.frameptr[-1],:,:] = binframefft[:,:]
+
+
+      
+#%%
+    
 class ImageStructureFunction:
     """Class containing an ISF in the form of an array
     together with scaling information

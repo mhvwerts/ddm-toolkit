@@ -19,25 +19,34 @@ import matplotlib.pyplot as plt
 from ddm_toolkit.tqdm import tqdm
 
 #from ddm_toolkit import ImageStructureEngine
-#Here we use the experimental ImageStructureEngine2
-#   which may be used in speed-up of FFT
+#Here we use the experimental ImageStructureEngine3
+#   
 #TODO: incorporate into ddm_toolkit/__init__.py imports
-from ddm_toolkit.ddm import ImageStructureEngine2 as ImageStructureEngine
-# Test
-# [2021-02-08]: using same particle simulation synthetic video 
+from ddm_toolkit.ddm import ImageStructureEngine3 as ImageStructureEngine
+#TODO: test against the original
 #
-#  simul3 : D (fit): 0.09861906880235917 µm2/s (+/-  0.0008906755653943241 , 95% CI)
-#   run time: 1'33"
-#   original ImageStructureFunction (no optimization)
+# [2021-02-08]
+#      simul3 : D (fit): 0.09861906880235917 µm2/s (+/-  0.0008906755653943241 , 95% CI)
+#       1'34" runtime
+#       'Original' ImageStructureEngine
 #
-#  simul3B: D (fit): 0.09861906895100159 µm2/s (+/-  0.0008906755625728216 , 95% CI)
-#   run time: 1'24"
-#   includes magnitude-squared optimization
+#      simul3C: D (fit): 0.0986190689133698 µm2/s (+/-  0.0008906756662257405 , 95% CI)
+#       1'00" runtime
+#       This is only the FFT optimization, not the magnitude-squared optimization
 #
+#  NEW simul3C: D (fit): 0.09861906902831793 µm2/s (+/-  0.0008906755360855044 , 95% CI)
+#       0'28" runtime
+#       Both FFT and magnitude-squared optimizations
+#
+
+#
+# very, very close, not identical ->  sign of different numerical approach
+#  compare results further (compare full 2D ISFs)
 
 
 
 from ddm_toolkit import ImageStructureFunction
+
 
 # ==============================
 # SIMULATION/ANALYSIS PARAMETERS
