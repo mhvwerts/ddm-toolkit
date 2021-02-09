@@ -44,18 +44,18 @@ ISF_a = ImageStructureFunction.fromImageStructureEngine(ISeng)
 ISF_b = ImageStructureFunction.fromImageStructureEngine(ISengB)
 
 taufi = 3
-plt.figure("test_5 window 1")
+plt.figure("test_3 window 1")
 plt.clf()
 plt.imshow(ISF_a.ISF[taufi])
 plt.title('ISF at tau = {0:d} frames'.format(ISF_a.tauf[taufi]))
 
 taufi = 30
-plt.figure("test_5 window 10")
+plt.figure("test_3 window 10")
 plt.clf()
 plt.imshow(ISF_b.ISF[taufi])
 plt.title('ISF(b) at tau = {0:d} frames'.format(ISF_b.tauf[taufi]))
 
-plt.figure("test_5 window 2")
+plt.figure("test_3 window 2")
 plt.clf()
 for taufi in range(len(ISF_a.tauf)):
     plt.plot(ISF_a.u,ISF_a.radavg(taufi),
@@ -68,7 +68,7 @@ ss = np.sum(ISF_a.ISF, axis = 1)
 sss = np.sum(ss, axis = 1)
 ssB = np.sum(ISF_b.ISF, axis = 1)
 sssB = np.sum(ssB, axis = 1)
-plt.figure("test_5 window 3")
+plt.figure("test_3 window 3")
 plt.clf()
 plt.plot(ISF_b.tauf, sssB,'-', label='ISFstep = 1')
 plt.plot(ISF_a.tauf, sss,'o', label='ISFstep = 10')
@@ -76,7 +76,7 @@ plt.xlabel('tau / frames')
 plt.ylabel('integrated ISF')
 plt.legend()
 
-plt.figure("test_5 window 5")
+plt.figure("test_3 window 5")
 plt.clf()
 # quick and dirty test for equivalence
 diff = sss - sssB[::teststep]

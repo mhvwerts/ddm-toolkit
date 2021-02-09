@@ -592,7 +592,17 @@ class ImageStructureEngine3(ImageStructureEngineBase):
             self.framefftbuf[self.frameptr[-1],:,:] = binframefft[:,:]
 
 
-      
+def ImageStructureEngineSelector(n: int):
+    if n==2:
+        return ImageStructureEngine2
+    elif n==3:
+        return ImageStructureEngine3
+    elif n==0 or n==1:
+        return ImageStructureEngine
+    else:
+        raise Exception('This type of ImageStructureEngine does not exist')
+
+                                    
 #%%
     
 class ImageStructureFunction:

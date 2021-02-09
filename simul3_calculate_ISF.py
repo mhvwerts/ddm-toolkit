@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 from ddm_toolkit.tqdm import tqdm
 
-from ddm_toolkit import ImageStructureEngine
+from ddm_toolkit import ImageStructureEngineSelector
 from ddm_toolkit import ImageStructureFunction
 
 
@@ -68,11 +68,17 @@ videof = params['imgsynth']['img_file']
 
 
 # IMAGE STRUCTURE ENGINE PARAMETERS
+# ISE_type       select type of ImageStructureEngine (0 is basic reference engine)
 # ISE_Nbuf []    buffer size of image structure engine
 # ISF_fpn        file (path) name for storing/retrieving image structure function
 ISE_Nbuf = int(params['ISFengine']['ISE_Nbuf'])
 ISE_Npx = img_Npx # frame size: Npx by Npx  must be equal to img_Npx
 ISF_fpn = params['ISFengine']['ISF_fpn']
+try:
+    ISE_type = int(params['ISFengine']['ISE_type'])
+except KeyError:
+    ISE_type = 0    
+ImageStructureEngine = ImageStructureEngineSelector(ISE_type)
 
 # conversion units, derived from simulation settings
 img_l = (bl + 2*img_border)

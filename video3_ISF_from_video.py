@@ -25,8 +25,7 @@ from configparser import ConfigParser
 
 from ddm_toolkit.tifftools import TiffFile, tifffile_version
 from ddm_toolkit.tqdm import tqdm
-#from ddm_toolkit import ImageStructureEngine
-from ddm_toolkit.ddm import ImageStructureEngine3 as ImageStructureEngine
+from ddm_toolkit import ImageStructureEngineSelector
 
 print('tifffile version: ', tifffile_version)
 
@@ -64,6 +63,11 @@ ROI_y2 = ROI_y1 + ROI_size
 ISE_Nbuf = int(params['ISFengine']['ISE_Nbuf'])
 ISE_Npx = ROI_size
 ISF_fpn = params['ISFengine']['ISF_fpn']
+try:
+    ISE_type = int(params['ISFengine']['ISE_type'])
+except KeyError:
+    ISE_type = 0    
+ImageStructureEngine = ImageStructureEngineSelector(ISE_type)
 
 
 #%% load video and calculate ISF

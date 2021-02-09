@@ -121,6 +121,8 @@ for i in tqdm(range(Nframes)):
     # Here we calculate the difference between two
     # subsequent frames (frame pair #0 = frame#0 and frame#1)
     # and then take the 'energy' (sum over squares)
+    # This helps in detecting any glitches in the video (skipped
+    # frames etc.)
     if i>0:
         dimg = (img - previmg)
         E_dimg[i-1] = np.sum(dimg**2)

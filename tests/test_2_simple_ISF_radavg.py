@@ -63,7 +63,6 @@ for taufi in range(len(ISF_a.tauf)):
 print('Wait for graph windows to close...')
 plt.pause(2.0)
 
-print('TODO: test_2: add many more tests')
 
 
 def test_ISFcount():

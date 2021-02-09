@@ -14,7 +14,7 @@ from ddm_toolkit.simulation import imgsynth2
 from ddm_toolkit.tabulate import tabulate
 
 print('')
-print('5. Subpixel test')
+print('4. Subpixel test')
 
 # ==============================
 # SIMULATION/ANALYSIS PARAMETERS

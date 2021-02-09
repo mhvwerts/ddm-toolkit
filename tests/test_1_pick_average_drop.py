@@ -101,11 +101,6 @@ plt.xlim(0,itmax)
 plt.pause(2.0)
 
 
-# is this necessary? => not sure if it is used elsewhere
-#outfp = 'datafiles/test_1_ISF_dummy.npz'
-#ISF.save(outfp)
-
-print('TODO: test_1: add many more test (periodicity etc.) - look at graph')
 
 def test_isum1():
     assert np.allclose(isum, 1.0)
