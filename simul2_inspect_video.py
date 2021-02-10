@@ -11,41 +11,28 @@
 # STEP 2: Play synthetic video (videofig player)
 #
 
-from sys import argv
-from configparser import ConfigParser
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 from ddm_toolkit.videofig import videofig 
+from ddm_toolkit import sim_params
 
 
-# Read parameter file, default to "simul0_default_params.txt"
-# if nothing
-params = ConfigParser()
-argc = len(argv)
-if argc == 1:
-    parfn = "simul0_default_params.txt"
-elif argc == 2:
-    parfn = argv[1]
-else:
-    raise Exception('invalid number of arguments')
-params.read(parfn)
-videof = params['imgsynth']['img_file']
-Nframes = int(params['animation']['Nframes'])
+# Get parameters
+sim = sim_params()
 
 # overdrive parameter (boost brightness)
 #TODO in parameter file?
 img_overdrive = 1.8
 
 # LOAD and VISUALIZE video stack
-im=np.load(videof)
+im=np.load(sim.vidfpn)
 img=im['img']
 im.close()
-if (Nframes < 0):
+if (sim.Nview < 0):
     Ni = img.shape[0]
 else:
-    Ni = Nframes
+    Ni = sim.Nview
     
 vmx = img.max() / img_overdrive # avoid autoscale of colormap
 

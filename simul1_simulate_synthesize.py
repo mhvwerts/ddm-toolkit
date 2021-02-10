@@ -10,95 +10,44 @@
 #
 # STEP 1: Brownian simulation and Video synthesis
 
-from sys import argv
-from configparser import ConfigParser
-
 import numpy as np
-
-from ddm_toolkit.tqdm import tqdm
 
 from ddm_toolkit.simulation import brownian_softbox, random_coordinates
 from ddm_toolkit.simulation import imgsynth2
+from ddm_toolkit.tqdm import tqdm
+
+from ddm_toolkit import sim_params
+       
+        
+# 
+# GET SIMULATION/ANALYSIS PARAMETERS
+# 
+sim = sim_params()
 
 
-
-# ==============================
-# SIMULATION/ANALYSIS PARAMETERS
-# ==============================
-# Read parameter file, default to "simul0_default_params.txt"
-# if nothing
-
-params = ConfigParser()
-argc = len(argv)
-if argc == 1:
-    parfn = "simul0_default_params.txt"
-elif argc == 2:
-    parfn = argv[1]
-else:
-    raise Exception('invalid number of arguments')
-params.read(parfn)
-
-
-# SIMULATION parameters
-# D  [µm2 s-1]  Fickian diffusion coefficient of the particles
-# Np []         number of particles
-# bl [µm]       length of simulation box sides (square box)
-# Nt []         number of time steps => number of frames
-# T  [s]        total time
-D = float(params['simulation']['D'])
-Np = int(params['simulation']['Np'])
-
-bl = float(params['simulation']['bl'])
-bl_x = bl     #Simulation box side length in x direction [µm]
-bl_y = bl
-
-Nt = int(params['simulation']['Nt'])
-T = float(params['simulation']['T'])
-
-
-# IMAGE SYNTHESIS parameters
-# img_center [µm, µm]   NOT YET USED: coordinates of the center of the image
-# img_border [µm]       width of border around simuation box (may be negative!)
-# img_w      [µm]       width parameter of 2D Gaussian to simulate optical transfer function
-# img_Npx    []
-img_border = float(params['imgsynth']['img_border'])
-img_w = float(params['imgsynth']['img_w'])
-img_Npx = int(params['imgsynth']['img_Npx'])
-videof = params['imgsynth']['img_file']
-
-
-# IMAGE STRUCTURE ENGINE PARAMETERS
-# ISE_Nbuf []    buffer size of image structure engine
-# ISF_fpn        file (path) name for storing/retrieving image structure function
-ISE_Nbuf = int(params['ISFengine']['ISE_Nbuf'])
-ISE_Npx = img_Npx # frame size: Npx by Npx  must be equal to img_Npx
-ISF_fpn = params['ISFengine']['ISF_fpn']
-
-# conversion units, derived from simulation settings
-img_l = (bl + 2*img_border)
-um_p_pix = img_l/img_Npx
-dt=T/Nt  # frame period [s]
-s_p_frame = dt
-
-
+#
 # SIMULATION (2D)
-
+#
 #set initial particle coordinates
-x0 = random_coordinates(Np, bl_x)
-y0 = random_coordinates(Np, bl_y)
+x0 = random_coordinates(sim.Np, sim.bl_x)
+y0 = random_coordinates(sim.Np, sim.bl_y)
 #create array of coordinates of the particles at different timesteps
-x1 = brownian_softbox(x0, Nt, dt, D, bl_x)
-y1 = brownian_softbox(y0, Nt, dt, D, bl_y)
+x1 = brownian_softbox(x0, sim.Nt, sim.dt, sim.D, sim.bl_x)
+y1 = brownian_softbox(y0, sim.Nt, sim.dt, sim.D, sim.bl_y)
 
-#make the synthetic image stack
+#
+# make the synthetic image stack (video)
+#
 ims=[]
-for it in tqdm(range(Nt)):
-    img = imgsynth2(x1[:,it], y1[:,it], img_w,
-        -img_border, -img_border, 
-        bl_x+img_border, bl_y+img_border,
-        img_Npx, img_Npx,
+for it in tqdm(range(sim.Nt)):
+    img = imgsynth2(x1[:,it], y1[:,it], sim.img_w,
+        -sim.img_border, -sim.img_border, 
+        sim.bl_x+sim.img_border, sim.bl_y+sim.img_border,
+        sim.img_Npx, sim.img_Npx,
         subpix = 2)
     ims.append(img)
 
-#save video
-np.savez_compressed(videof, img=ims)
+#
+# save video
+#
+np.savez_compressed(sim.vidfpn, img=ims)

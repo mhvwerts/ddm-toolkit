@@ -10,102 +10,42 @@
 #
 # STEP 3: Calculate Image Structure Function from synthetic video
 
-from sys import argv
-from configparser import ConfigParser
-
 import numpy as np
 import matplotlib.pyplot as plt
 
 from ddm_toolkit.tqdm import tqdm
-
 from ddm_toolkit import ImageStructureEngineSelector
 from ddm_toolkit import ImageStructureFunction
+from ddm_toolkit import sim_params
 
 
-# ==============================
-# SIMULATION/ANALYSIS PARAMETERS
-# ==============================
-# Read parameter file, default to "simul0_default_params.txt"
-# if nothing
-
-params = ConfigParser()
-argc = len(argv)
-if argc == 1:
-    parfn = "simul0_default_params.txt"
-elif argc == 2:
-    parfn = argv[1]
-else:
-    raise Exception('invalid number of arguments')
-params.read(parfn)
-
-
-# SIMULATION parameters
-# D  [µm2 s-1]  Fickian diffusion coefficient of the particles
-# Np []         number of particles
-# bl [µm]       length of simulation box sides (square box)
-# Nt []         number of time steps => number of frames
-# T  [s]        total time
-D = float(params['simulation']['D'])
-Np = int(params['simulation']['Np'])
-
-bl = float(params['simulation']['bl'])
-bl_x = bl     #Simulation box side length in x direction [µm]
-bl_y = bl
-
-Nt = int(params['simulation']['Nt'])
-T = float(params['simulation']['T'])
-
-
-# IMAGE SYNTHESIS parameters
-# img_center [µm, µm]   NOT YET USED: coordinates of the center of the image
-# img_border [µm]       width of border around simuation box (may be negative!)
-# img_w      [µm]       width parameter of 2D Gaussian to simulate optical transfer function
-# img_Npx    []
-img_border = float(params['imgsynth']['img_border'])
-img_w = float(params['imgsynth']['img_w'])
-img_Npx = int(params['imgsynth']['img_Npx'])
-videof = params['imgsynth']['img_file']
-
-
-# IMAGE STRUCTURE ENGINE PARAMETERS
-# ISE_type       select type of ImageStructureEngine (0 is basic reference engine)
-# ISE_Nbuf []    buffer size of image structure engine
-# ISF_fpn        file (path) name for storing/retrieving image structure function
-ISE_Nbuf = int(params['ISFengine']['ISE_Nbuf'])
-ISE_Npx = img_Npx # frame size: Npx by Npx  must be equal to img_Npx
-ISF_fpn = params['ISFengine']['ISF_fpn']
-try:
-    ISE_type = int(params['ISFengine']['ISE_type'])
-except KeyError:
-    ISE_type = 0    
-ImageStructureEngine = ImageStructureEngineSelector(ISE_type)
-
-# conversion units, derived from simulation settings
-img_l = (bl + 2*img_border)
-um_p_pix = img_l/img_Npx
-dt=T/Nt  # frame period [s]
-s_p_frame = dt
+#
+# GET SIMULATION/ANALYSIS PARAMETERS
+#
+sim = sim_params()
+ImageStructureEngine = ImageStructureEngineSelector(sim.ISE_type)
 
 
 # CALCULATE VIDEO (IMAGE) STRUCTURE FUNCTION
 
-#RELOAD VIDEO
+# LOAD VIDEO
 # video was saved using: np.savez_compressed(videof, img=ims)
-ims = np.load(videof)['img']
+ims = np.load(sim.vidfpn)['img']
 
-#push onto DDM engine
-ISF1 = ImageStructureEngine(ISE_Npx, ISE_Nbuf)
-for it in tqdm(range(Nt)):
-    ISF1.push(ims[it])
-    #print('\r\tframe #{0:d}'.format(it), end='')
-ISF1.ISFcount
+# process using ImageStructureEngine
+ISE1 = ImageStructureEngine(sim.ISE_Npx, sim.ISE_Nbuf)
+for it in tqdm(range(sim.Nframes)):
+    ISE1.push(ims[it])
+ISE1.ISFcount
 
-ISF1.save(ISF_fpn)
+# write result file
+ISE1.save(sim.ISE_outfpn)
 
-IA = ImageStructureFunction.fromImageStructureEngine(ISF1)
-
+#
+# quick plot of radially average image structure function
+#
+IA = ImageStructureFunction.fromImageStructureEngine(ISE1)
 IAqtau = np.zeros((len(IA.tauf),len(IA.u)))
-
 for i in range(len(IA.tauf)):
     IAqtau[i,:] = IA.radavg(i)
     
