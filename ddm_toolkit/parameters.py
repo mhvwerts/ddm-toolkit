@@ -106,3 +106,26 @@ class sim_params:
         self.dt = self.T/self.Nt
         self.s_p_frame = self.dt      
         self.Nframes = self.Nt
+        
+        
+    def params_exist(self):
+        """Dummy function used in testing for existence of 
+        sim_params class object
+        
+        Use case:
+                
+        try:
+            # IPython: use '%run -i' and tune attributes of sim
+            sim.params_exist()
+        except (NameError, AttributeError) as combinerr:
+            print("Loading parameters from file")
+            sim = sim_params()
+            
+        
+
+        Returns
+        -------
+        None.
+
+        """
+        pass

@@ -21,7 +21,7 @@ from ddm_toolkit import sim_params
         
 # 
 # GET SIMULATION/ANALYSIS PARAMETERS
-# 
+#
 sim = sim_params()
 
 
