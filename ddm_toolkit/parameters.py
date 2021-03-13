@@ -31,8 +31,17 @@ class sim_params:
     img_w      [µm]       width parameter of 2D Gaussian to simulate
                           optical transfer function
     img_Npx    []         width and height of output image
-  
-    
+    img_I_offset []       apply a DC offset to the pixel intensity
+    img_I_noise []        apply a Gaussian noise to the pixel intensity. This
+                          parameter is the standard deviation of the Gaussian
+                          noise distribution ('scale' parameter in random.normal)
+                          Set this to a negative value if no noise generation is
+                          needed, or remove this parameter altogether.
+                          (The integrated intensity of each particle is fixed
+                           at 1.0. Also, the intensity is a float32 value.)
+    img_file              file (path) name for storing video stack
+
+
     VIDEO INSPECTION/PLAY BACK ('ANIMATION') parameters
 
     Nview        []       number of frames to play back (-1 means all frames)
@@ -87,6 +96,14 @@ class sim_params:
         self.img_border = float(params['imgsynth']['img_border'])
         self.img_w = float(params['imgsynth']['img_w'])
         self.img_Npx = int(params['imgsynth']['img_Npx'])
+        try:
+            self.img_I_offset = float(params['imgsynth']['img_I_offset'])
+        except KeyError:
+            self.img_I_offset = None
+        try:
+            self.img_I_noise = float(params['imgsynth']['img_I_noise'])
+        except KeyError:
+            self.img_I_noise = -1.0
         self.vidfpn = params['imgsynth']['vidfpn']
 
         try:

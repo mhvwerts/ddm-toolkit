@@ -15,12 +15,22 @@ T = 1000.
 # img_border [µm]       width of border around simuation box (may be negative!)
 # img_w      [µm]       width parameter of 2D Gaussian to simulate optical
 #                       transfer function
-# img_Npx    []
+# img_Npx    []         width and height of synthetic image in pixels
+# img_I_offset []       apply a DC offset to the pixel intensity
+# img_I_noise []        apply a Gaussian noise to the pixel intensity. This
+#                       parameter is the standard deviation of the Gaussian
+#                       noise distribution ('scale' parameter in random.normal)
+#                       Set this to a negative value if no noise generation is
+#                       needed, or remove this parameter altogether.
+#                       (The integrated intensity of each particle is fixed
+#                       at 1.0. Also, the intensity is a float32 value.)
 # img_file              file (path) name for storing video stack
 #
 img_border = 16.0
 img_w = 2.0
 img_Npx = 256
+img_I_offset = 0.06
+img_I_noise = 0.03
 vidfpn = datafiles/simul1_result_video.npz
 
 [animation]

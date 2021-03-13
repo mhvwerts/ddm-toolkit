@@ -173,7 +173,7 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
             Binit = IAqtau[0, iq_opt]
             Ainit = IAqtau[-1, iq_opt] - Binit
             p_guess = [Ainit, Binit, kinit]
-            p_fit, p_fitcov = curve_fit(ISFmod, IA.tau, IAqtau[:,iq_opt],
+            p_fit, p_fitcov = curve_fit(ISFmod, IA.tau[1:], IAqtau[1:,iq_opt],
                                         p0 = p_guess)
             k_q = p_fit[2]
             A_q = p_fit[0]
@@ -265,7 +265,7 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
         Binit = IAqtau[0, iqf]
         Ainit = IAqtau[-1, iqf] - Binit
         p_guess = [Ainit, Binit, kinit]
-        p_fit, p_fitcov = curve_fit(ISFmod, IA.tau, IAqtau[:,iqf],
+        p_fit, p_fitcov = curve_fit(ISFmod, IA.tau[1:], IAqtau[1:,iqf],
                                     p0 = p_guess)
         k_q[iqf] = p_fit[2]
         A_q[iqf] = p_fit[0]
@@ -320,7 +320,7 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
         tau_opt = IA.tau[itau_opt]
         # fit
         p_fit, p_fitcov = curve_fit(ISFmod,
-                                    IA.tau[:itau_opt], IAqtau[:itau_opt,iqf],
+                                    IA.tau[1:itau_opt], IAqtau[1:itau_opt,iqf],
                                     p0 = p_guess)
         k_q[iqf] = p_fit[2]
         A_q[iqf] = p_fit[0]

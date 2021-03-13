@@ -17,7 +17,10 @@ from ddm_toolkit.simulation import imgsynth2
 from ddm_toolkit.tqdm import tqdm
 
 from ddm_toolkit import sim_params
-       
+
+# set up pseudo random number generator for making noise
+from numpy.random import Generator, PCG64
+PRNG = Generator(PCG64())   
         
 # 
 # GET SIMULATION/ANALYSIS PARAMETERS
@@ -45,6 +48,12 @@ for it in tqdm(range(sim.Nt)):
         sim.bl_x+sim.img_border, sim.bl_y+sim.img_border,
         sim.img_Npx, sim.img_Npx,
         subpix = 2)
+    if not (sim.img_I_offset is None):
+        img += sim.img_I_offset
+    if not (sim.img_I_noise <= 0.0):
+        imgnoise = PRNG.normal(loc = 0.0, scale = sim.img_I_noise,
+                               size = img.shape)
+        img += imgnoise
     ims.append(img)
 
 #

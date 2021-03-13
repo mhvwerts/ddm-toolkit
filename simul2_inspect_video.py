@@ -23,7 +23,7 @@ sim = sim_params()
 
 # overdrive parameter (boost brightness)
 #TODO in parameter file?
-img_overdrive = 1.8
+img_overdrive = 1.7
 
 # LOAD and VISUALIZE video stack
 im=np.load(sim.vidfpn)
