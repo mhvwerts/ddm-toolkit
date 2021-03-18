@@ -10,7 +10,7 @@ import numpy as np
 
 from ddm_toolkit.tifftools import TiffFile, tifffile_version
 from ddm_toolkit.videofig import videofig
-from ddm_toolkit.tqdm import tqdm
+from ddm_toolkit import tqdm
 
 
 print('tifffile version: ', tifffile_version)

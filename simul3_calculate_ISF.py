@@ -13,7 +13,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ddm_toolkit.tqdm import tqdm
+from ddm_toolkit import tqdm
 from ddm_toolkit import ImageStructureEngineSelector
 from ddm_toolkit import ImageStructureFunction
 from ddm_toolkit import sim_params

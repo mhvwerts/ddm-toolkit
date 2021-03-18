@@ -14,7 +14,7 @@ import numpy as np
 
 from ddm_toolkit.simulation import brownian_softbox, random_coordinates
 from ddm_toolkit.simulation import imgsynth2
-from ddm_toolkit.tqdm import tqdm
+from ddm_toolkit import tqdm
 
 from ddm_toolkit import sim_params
 

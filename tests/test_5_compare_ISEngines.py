@@ -21,7 +21,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ddm_toolkit.tqdm import tqdm
+from ddm_toolkit import tqdm
 
 from ddm_toolkit import ImageStructureEngine
 from ddm_toolkit import ImageStructureEngine2
@@ -34,10 +34,10 @@ print('')
 print('5. Test of different ImageStructureEngine types')
 
 
-# For now, use the video file from the 'simulX' sequence.
-# Later we could/should use the file provided by 'datafile.py'
-videof = 'datafiles/simul1_result_video.npz'
-
+#Use the video file from the 'simulX' sequence:
+# videof = 'datafiles/simul1_result_video.npz'
+#Use the file provided by 'datafile.py'
+videof = 'datafiles/imageseq_pytest_tests.npz'
 
 # CALCULATE VIDEO (IMAGE) STRUCTURE FUNCTION
 # video was saved using: np.savez_compressed(videof, img=ims)

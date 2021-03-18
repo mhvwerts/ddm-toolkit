@@ -319,17 +319,54 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
         itau_opt = closestidx(IA.tau, tau_opt)
         tau_opt = IA.tau[itau_opt]
         # fit
-        p_fit, p_fitcov = curve_fit(ISFmod,
-                                    IA.tau[1:itau_opt], IAqtau[1:itau_opt,iqf],
-                                    p0 = p_guess)
+        try:
+            p_fit, p_fitcov = curve_fit(ISFmod,
+                                        IA.tau[1:itau_opt], IAqtau[1:itau_opt,iqf],
+                                        p0 = p_guess)
+        except RuntimeError:
+            # catching rare fit error
+            # The fit does not converge.
+            # This usually happens for points where noise is significant,
+            # and the amplitude A(q) is already small.
+            # One way to detect such situation may be to look at B(q)/A(q)
+            # since A(q) is usually monotonously descending,
+            # we may use this situation to simply stop fitting
+            # and set iq_high to the last detected point
+            print('WARNING: optimal fit not found at index {0:d} (rel. ix = {1:d})'.format(iqf, iqf-(iq_opt+1)))
+            
+            ## ONE WAY OF HANDLING THIS SITUATION:
+            ## (in this case we can monitor which points have problems)
+            ## since the loop goes all the way
+            # print('         copying previous p_fit (TODO: FIX THIS)')
+            # # TODO: THIS SHOULD BE REPLACED BY SETTING THESE TO NaN
+            # # and treat them as missing points in the final fit
+            # p_fit[2] = k_q[iqf-1]
+            # p_fit[0] = A_q[iqf-1]
+            # p_fit[1] = B_q[iqf-1]       
+            
+            ## OTHER WAY OF HANDLING THIS SITUATION:
+
+            print('         stopping the analysis here. updating iq_high to reflect last valid point')
+            iq_high = iqf - 1
+            break
+        ## B(q)/A(q) > limit stopping criterion
+        ## (i.e. noise/signal ratio) "noise-to-signal ratio exceeded... stopping analysis"
+        ## TODO: make this configurable, remove magic number 25.
+        if (abs(p_fit[1]/p_fit[0]) > 25.):
+            print('WARNING: B-to-A ratio exceeded before iq_high.')
+            print('         stopping the analysis here. updating iq_high to reflect last valid point')
+            iq_high = iqf - 1
+            break
         k_q[iqf] = p_fit[2]
         A_q[iqf] = p_fit[0]
         B_q[iqf] = p_fit[1]
         
-        # sample fit for iq_high (for plotting and diagnostic purposes)
-        if (iqf==iq_high):
-            result['ISFmodelfit_qhigh'] = ISFmod(IA.tau, *p_fit)
-            #result['ISFmodelfit_qhigh'] = ISFmodel.eval(fit.params,tau=IA.tau)
+    # sample fit for iq_high (for plotting and diagnostic purposes)
+    p_fit[2] = k_q[iq_high]
+    p_fit[0] = A_q[iq_high] 
+    p_fit[1] = B_q[iq_high] 
+    result['ISFmodelfit_qhigh'] = ISFmod(IA.tau, *p_fit)
+    #result['ISFmodelfit_qhigh'] = ISFmodel.eval(fit.params,tau=IA.tau)
 
     # store A(q), B(q), k(q)    
     result['k_q'] = k_q
@@ -363,6 +400,11 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
 
     result['D_fit'] = Dfit
     result['D_fit_CI95'] = Dci
+
+    # re_update q_high (in case analysis finished prematurely)
+    q_high = IA.q[iq_high]
+    result['q_high'] = q_high
+    result['iq_high'] = iq_high  
 
     return result
     

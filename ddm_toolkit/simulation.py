@@ -6,9 +6,7 @@ simulation.py:
     generation of synthetic images of nanoparticle distributions, etc.
 """
 
-from time import time
 
-from tqdm import tqdm
 
 import numpy as np
 from numpy.random import Generator, PCG64

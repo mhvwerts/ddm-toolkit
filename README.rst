@@ -78,6 +78,7 @@ Execution of this sequence of scripts is a basic way of testing the code base. A
 TO DO
 -----
 
+- Improve automated Brownian analysis with noisy data: stop analysis at high B(q)/A(q) ratio, make stopping criterion configurable.
 - Script with repeated simulation-analysis sequence (+ single-cycle script in pytest)
 - Document processing of real video files
 - (Re)organize documentation.

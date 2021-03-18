@@ -24,7 +24,7 @@ from sys import argv
 from configparser import ConfigParser
 
 from ddm_toolkit.tifftools import TiffFile, tifffile_version
-from ddm_toolkit.tqdm import tqdm
+from ddm_toolkit import tqdm
 from ddm_toolkit import ImageStructureEngineSelector
 
 print('tifffile version: ', tifffile_version)
