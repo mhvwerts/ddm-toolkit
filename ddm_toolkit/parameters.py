@@ -80,6 +80,8 @@ class sim_params:
         elif argc == 2:
             parfn = argv[1]
         else:
+            print('argc = ',argc)
+            print('argv = ',argv)
             raise Exception('invalid number of arguments')
         params.read(parfn)
 

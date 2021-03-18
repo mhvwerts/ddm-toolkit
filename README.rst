@@ -30,7 +30,7 @@ There is no specific installable package yet for this toolkit, and it does not n
 -----------
 Basic usage
 -----------
-We encourage following a step-by-step approach to the generation and processing of DDM data: each step is carried out by a short custom-written Python script that uses the functionality from the ``ddm_toolkit`` module. The result of each step is written to a data file, which is then passed to the script that carries out the next step. Since some of the steps take quite some processing times, the step-by-step approach avoids that you need to wait long minutes each time you run your script after having made only minor changes.
+We encourage following a step-by-step approach to the generation and processing of DDM data: each step is carried out by a short custom-written Python script that uses the functionality from the ``ddm_toolkit`` module. The result of each step is written to a data file, which is then passed to the script that carries out the next step. Since some of the steps take quite some processing time, the step-by-step approach avoids that you need to wait long minutes each time you run your script after having made only minor changes.
 
 In order to get an idea of the work flow, you may run a sequence which first generates a simulated video stack of 2D Brownian motion. This synthetic video is subsequently processed by the DDM algorithm, and analyzed in terms of the standard Brownian model.
 
