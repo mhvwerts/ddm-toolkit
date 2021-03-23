@@ -6,19 +6,6 @@
 # STEP 5: Analysis of ISF of experimental video
 #
 from sys import argv
-from configparser import ConfigParser#!/usr/bin/env python3
-# coding: utf-8
-#
-# simulate Brownian motion, generate synthetic video frames,
-# analyze with DDM algorithm
-#
-# by Greshma Babu and Martinus Werts, 2020
-#
-# diffusion coefficient in => diffusion coefficient out
-#
-# STEP 5: Analysis of simulation result
-#
-from sys import argv
 import os.path
 from configparser import ConfigParser
 
