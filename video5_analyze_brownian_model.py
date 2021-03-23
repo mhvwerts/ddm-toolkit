@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 # coding: utf-8
 #
+# Analyze experimental video
+#
+# STEP 5: Analysis of ISF of experimental video
+#
+from sys import argv
+from configparser import ConfigParser#!/usr/bin/env python3
+# coding: utf-8
+#
 # simulate Brownian motion, generate synthetic video frames,
 # analyze with DDM algorithm
 #
@@ -11,6 +19,7 @@
 # STEP 5: Analysis of simulation result
 #
 from sys import argv
+import os.path
 from configparser import ConfigParser
 
 import numpy as np
@@ -38,8 +47,10 @@ else:
 params = ConfigParser(interpolation=None)
 params.read(argfn)
 
-
-ISF_fpn = params['ISFengine']['ISF_fpn']
+# MW MOD: different file name for ISF file
+#ISF_fpn = params['ISFengine']['ISF_fpn']
+fnbase, fnext = os.path.splitext(argfn)
+ISF_fpn = fnbase+'_ISF.npz'
 
 # real-world dimensions
 um_p_pix = float(params['realworld']['px_size'])
@@ -165,3 +176,4 @@ plt.xlabel('q [µm-1]')
 #TODO make this part conditional, do not display if running in Spyder
 print('(close all open child windows to terminate script)')
 plt.show()
+

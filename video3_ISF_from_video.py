@@ -21,6 +21,7 @@ python video3_ISF_from_video.py <filename.txt>
 """
 
 from sys import argv
+import os.path
 from configparser import ConfigParser
 
 from ddm_toolkit.tifftools import TiffFile, tifffile_version
@@ -43,10 +44,12 @@ if argc == 1:
 elif argc == 2:
     argfn = argv[1]
 else:
-    raise Exception('invalid number of arguments')
- 
+    raise Exception('invalid number of arguments.')
+    
 params = ConfigParser(interpolation=None)
 params.read(argfn)
+
+fnbase, fnext = os.path.splitext(argfn)
 
 infp = params['videofile']['pathname']
 frm_start = int(params['videofile']['frm_start'])
@@ -71,9 +74,6 @@ ImageStructureEngine = ImageStructureEngineSelector(ISE_type)
 
 
 #%% load video and calculate ISF
-
-
-
 print('file being processed: ', infp)
 tif = TiffFile(infp)
 
@@ -115,5 +115,6 @@ tif.close()
 print()
 print('#frames contributing to averaged ISF (ISFcount): {0:d}'.format(ISE.ISFcount))
 
-ISE.save(ISF_fpn)
+resultfn = fnbase+'_ISF.npz'
+ISE.save(resultfn)
 
