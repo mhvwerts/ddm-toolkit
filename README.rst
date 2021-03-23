@@ -79,8 +79,10 @@ TO DO
 -----
 
 - Improve automated Brownian analysis with noisy data: stop analysis at high B(q)/A(q) ratio, make stopping criterion configurable.
-- Script with repeated simulation-analysis sequence (+ single-cycle script in pytest)
+- Single monolithic script with repeated simulation-analysis sequence
+- Include current ``simul`` script cycle in ``pytest`` tests (copy files and adapt)
 - Document processing of real video files
+- Convergence between ``simul3``-``simul5`` and ``video3``-``video5`` scripts (based on ``video`` scripts)
 - (Re)organize documentation.
 
 ---------------

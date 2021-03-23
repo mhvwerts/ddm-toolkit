@@ -624,8 +624,25 @@ class ImageStructureFunction:
     radavg(itau) = It will give radial average of ISF at a 
     particular lag time index. The corresponding lag time is given by
     tau[itau]
+    
+    saveRadAvg => save the complete radially averaged ISF for later
+    use via ImageStructureFunctionRadAvg
+    
+    TODO refactor ImageStructureFunction/ImageStructureFunctionRadAvg should
+    derive from one and the same base class
+    
+    e.g.
+    
+    class ImageStructureFunctionBase:
+        def __init__(self, hdic=None):
+            etc. etc.
+            (mainly handling hdic)
+            
+    class ImageStructureFunction(ImageStructureBase):
+        etc. etc.
     """
     def __init__(self, ISFarray, tauf, ux, uy, hdic=None):
+        self.isRadialAverage = False
         self.ISF = ISFarray
         self.tauf = tauf
         self.ux = ux
@@ -648,6 +665,7 @@ class ImageStructureFunction:
             self.Navg = hdic['Navg']
             self.Ndrop = hdic['Ndrop']
             self.apodwindow = hdic['apodwindow']
+            self.hdic = hdic
         
         # initialize radial averager
         self.dists = np.sqrt(self.uy[:,None]**2 +
@@ -673,8 +691,9 @@ class ImageStructureFunction:
         self.qy = 2*np.pi*self.uy
         self.tau = self.tauf * 1.0
 
+    #TODO rename the following method to fromFile
     @classmethod
-    def fromfilename(cls, fpn):
+    def fromFile(cls, fpn):
         with np.load(fpn, allow_pickle=True) as npz:
             hdic = npz['header'].item()
             tauf = npz['tauf']
@@ -685,10 +704,18 @@ class ImageStructureFunction:
 
     @classmethod
     def fromImageStructureEngine(cls, ISE_instance):
-        #TODO: copy rest of attributes into dictionary
-        # for now, do not use dictionary, in order to test independence
+        hdic ={}
+        hdic['Npx'] = ISE_instance.Npx
+        hdic['Nbuf'] = ISE_instance.Nbuf
+        hdic['ISFcount'] = ISE_instance.ISFcount
+        hdic['totalframes'] = ISE_instance.totalframes
+        hdic['Npick'] = ISE_instance.Npick
+        hdic['Navg'] = ISE_instance.Navg
+        hdic['Ndrop'] = ISE_instance.Ndrop
+        hdic['apodwindow'] = ISE_instance.apodwindow
         return cls(ISE_instance.ISF(), ISE_instance.tauf,
-                   ISE_instance.ux, ISE_instance.uy)
+                   ISE_instance.ux, ISE_instance.uy,
+                   hdic = hdic)
 
     def real_world(self, um_p_px, s_p_frm):
         """scale q wavevectors and tau time lags to real-world units
@@ -719,7 +746,153 @@ class ImageStructureFunction:
         sumbinpix = np.histogram(self.dists, self.bins,
                             weights = self.ISF[itau])[0]
         return sumbinpix/self.Nbinpix
-    
+
+
+    def saveRadAvg(self, fpn):
+        """Radially average the complete ISF and save it to an NPZ file,
+        including the ISFengine settings.
+        
+        This 'save'
+        method is intended to save the result of ISF calculation in a compact
+        form in the case that we are dealing with isotropic particle motion.
+        
+        It can be opened using the ImageStructureFunctionRadAvg class
+        
+        .
+        """
+        # radial averager
+        ISFqtau = np.zeros((len(self.tauf),len(self.u)))
+        for i in range(len(self.tauf)):
+            ISFqtau[i,:] = self.radavg(i)
+        # remove "zero-frequency garbage" at center
+        ISFqtau[:,0] = 0.0
+        
+        np.savez(fpn,
+                 header = self.hdic,
+                 ISFRadAvg = ISFqtau, 
+                 tauf = self.tauf, u = self.u)
+
 
     
+
+
+class ImageStructureFunctionRadAvg:
+    """Class containing a radially averaged ISF in the form of an array
+    together with scaling information
+    
+    In its radially averaged form, the ISF takes much less space, and is more
+    easily transferred for analysis.
+    
+    TODO: This class and the basic ImageStructureFunction class should be
+    refactored, so that they both derive from the same base class. At present
+    (for ease of programming) they are two distinct classes. Actually, the 
+    ImageStructureFunctionRadAvg was obtained by copying the code of
+    ImageStructureFunction and then modifying it 
+    
+    Can be constructed by loading a suitable NPZ file (output of
+    ImageStructureEngine.saveRadAvg)
+    
+        isf = ImageStructureFunctionRadAvg.fromFile(NPZfilename)
+    
+    The class can NOT be instantiated directly from an
+    ImageStructureEngine     
+    """
+    def __init__(self, ISFRadAvg_array, tauf, u, hdic=None):
+        self.isRadialAverage = True
+        self.ISFqtau = ISFRadAvg_array
+        self.tauf = tauf
+        self.u = u
+ 
+        self.Npx = len(self.u)
+       
+        # actually not sure if the following is useful
+        # probably better keep program to minimum
+        # perhaps we can just store the header as self.hdic
+        # instead of decoding here
+        if hdic is not None: #TODO: check if we can analyze ISF without
+            #                 having access to these data
+            # self.Npx = hdic['Npx'] #perhaps not needed!
+            self.Nbuf = hdic['Nbuf']
+            self.ISFcount = hdic['ISFcount']
+            self.totalframes = hdic['totalframes']
+            self.Npick = hdic['Npick']
+            self.Navg = hdic['Navg']
+            self.Ndrop = hdic['Ndrop']
+            self.apodwindow = hdic['apodwindow']
+        
+        # TODO TO BE REMOVED
+        #  (kept for reference, and as a reminder to make a base class for
+        #   this class, shared with ImageStructureFunction)
+        # # initialize radial averager
+        # self.dists = np.sqrt(self.uy[:,None]**2 +
+        #                      self.ux[None,:]**2)
+        # self.dists[self.Npx//2,:] = 0. # central cross goes in q = 0 bin
+        # self.dists[:,self.Npx//2] = 0.
+        # ux0 = self.ux[self.Npx//2]
+        # assert ux0 == 0.0
+        # ux1 = self.ux[self.Npx//2+1]
+        # halfstep = (ux1 - ux0)/2.0
+        # assert halfstep > 0
+        # self.bins = np.append(-halfstep, self.ux[self.Npx//2:]+halfstep)
+        # histo = np.histogram(self.dists, self.bins)
+        # self.Nbinpix = histo[0]
+        # self.u = (histo[1][0:-1]+histo[1][1:])/2.0
+        
+        #initialize this to pixel, frame units
+        # replace with 'real world' units by calling 
+        #   real_world(um_p_px, s_p_frm)
+        self.real_world_units = False
+        self.q = 2*np.pi*self.u
+        self.tau = self.tauf * 1.0
+
+    @classmethod
+    def fromFile(cls, fpn):
+        with np.load(fpn, allow_pickle=True) as npz:
+            hdic = npz['header'].item()
+            tauf = npz['tauf']
+            u = npz['u']
+            ISFRadAvg = npz['ISFRadAvg']
+        return cls(ISFRadAvg, tauf, u, hdic)
+
+    # The following is not useful for RadAvg 
+    # TODO remove
+    #   (but only upon refactoring both classes)
+    # @classmethod
+    # def fromImageStructureEngine(cls, ISE_instance):
+    #     #TODO: copy rest of attributes into dictionary
+    #     # for now, do not use dictionary, in order to test independence
+    #     return cls(ISE_instance.ISF(), ISE_instance.tauf,
+    #                ISE_instance.ux, ISE_instance.uy)
+
+    def real_world(self, um_p_px, s_p_frm):
+        """scale q wavevectors and tau time lags to real-world units
+        
+        q, qx, qy are initially initialized to pixels^-1 (radians)
+        tau is initially initialized to frames
+        
+        By calling real_world, these are scaled to real-world units,
+        in our case µm - seconds, to keep it simple. Of course, this
+        choice is arbitrary.
+        
+        To indicate that real world units have been set, the flag
+            real_world_units is set to True
+        """
+        
+        self.q = 2*np.pi*self.u / um_p_px
+        self.tau = self.tauf * s_p_frm
+        self.real_world_units = True
+
+    # TODO remove the following upon 
+    #      refactoring ImageStructureFunction and ImageStructureFunctionRadAvg    
+    # def radavg(self, itau):
+    #     """Extract radial average of ISF at index itau.
+    #     The corresponding time lag is self.tau[itau].
+    #     Correspond lag in number of frames is self.tauf[itau]
+    #     the ordinates are in qrs"""
+    #     sumbinpix = np.histogram(self.dists, self.bins,
+    #                         weights = self.ISF[itau])[0]
+    #     return sumbinpix/self.Nbinpix
+    
+
+        
         

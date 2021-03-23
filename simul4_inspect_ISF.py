@@ -28,7 +28,7 @@ img_overdrive = 2.5
 
 
 # load image structure function
-IA = ImageStructureFunction.fromfilename(sim.ISE_outfpn)
+IA = ImageStructureFunction.fromFile(sim.ISE_outfpn)
 Ni = IA.ISF.shape[0] 
     
 vmx = IA.ISF.max() / img_overdrive # avoid autoscale of colormap

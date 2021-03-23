@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-@author: werts
+Analyze experimental video
+
+
+STEP 3: Read and calculate ISF of experimental video
 
 
 
@@ -27,6 +30,7 @@ from configparser import ConfigParser
 from ddm_toolkit.tifftools import TiffFile, tifffile_version
 from ddm_toolkit import tqdm
 from ddm_toolkit import ImageStructureEngineSelector
+from ddm_toolkit import ImageStructureFunction
 
 print('tifffile version: ', tifffile_version)
 
@@ -65,7 +69,13 @@ ROI_y2 = ROI_y1 + ROI_size
 
 ISE_Nbuf = int(params['ISFengine']['ISE_Nbuf'])
 ISE_Npx = ROI_size
-ISF_fpn = params['ISFengine']['ISF_fpn']
+doISFradialaverage = False
+try:
+    if params['ISFengine']['ISF_radialaverage']=='True':
+        doISFradialaverage = True
+except KeyError:
+    pass
+
 try:
     ISE_type = int(params['ISFengine']['ISE_type'])
 except KeyError:
@@ -115,6 +125,15 @@ tif.close()
 print()
 print('#frames contributing to averaged ISF (ISFcount): {0:d}'.format(ISE.ISFcount))
 
-resultfn = fnbase+'_ISF.npz'
-ISE.save(resultfn)
+if doISFradialaverage:
+    # radially average the ISF and save it
+    IA = ImageStructureFunction.fromImageStructureEngine(ISE)
+    resultfn = fnbase+'_ISFRadAvg.npz'
+    IA.saveRadAvg(resultfn)
+else:
+    # just save the whole x,y ISF
+    resultfn = fnbase+'_ISF.npz'
+    ISE.save(resultfn)
+
+    
 

@@ -12,6 +12,7 @@
 #
 
 from sys import argv
+import os.path
 from configparser import ConfigParser
 
 from ddm_toolkit import ImageStructureFunction
@@ -35,8 +36,19 @@ else:
  
 params = ConfigParser(interpolation=None)
 params.read(argfn)
+fnbase, fnext = os.path.splitext(argfn)
 
-ISF_fpn = params['ISFengine']['ISF_fpn']
+# is source file a full ISF or a radially average ISF?
+ISFradialaverage = False
+try:
+    if params['ISFengine']['ISF_radialaverage']=='True':
+        ISFradialaverage = True
+except KeyError:
+    pass
+    
+assert not ISFradialaverage, "inspect ISF only possible for full ISF (this ISF is radially averaged"
+
+ISF_fpn = fnbase+'_ISF.npz'
 img_overdrive = float(params['ISFengine']['ISF_display_overdrive'])
 # overdrive parameter (boost ISF display brightness)
 
@@ -45,7 +57,7 @@ img_overdrive = float(params['ISFengine']['ISF_display_overdrive'])
 #%% load and display ISF
 
 # load image structure function
-IA = ImageStructureFunction.fromfilename(ISF_fpn)
+IA = ImageStructureFunction.fromFile(ISF_fpn)
 
 Ni = IA.ISF.shape[0] 
     

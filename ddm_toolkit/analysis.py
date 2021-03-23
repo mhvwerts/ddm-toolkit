@@ -84,13 +84,15 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     highfac = 3.0 # shortest time constant (highest k) 3 times shortest delta tau
     lowfac = 2.0 # longest time constant (lowest k) half the full ISF data window
     
-    
-    # radial averager
-    IAqtau = np.zeros((len(IA.tauf),len(IA.u)))
-    for i in range(len(IA.tauf)):
-        IAqtau[i,:] = IA.radavg(i)
-    # remove "zero-frequency garbage" at center
-    IAqtau[:,0] = 0.0
+    if IA.isRadialAverage:
+        IAqtau = IA.ISFqtau
+    else:
+        # radial averager
+        IAqtau = np.zeros((len(IA.tauf),len(IA.u)))
+        for i in range(len(IA.tauf)):
+            IAqtau[i,:] = IA.radavg(i)
+        # remove "zero-frequency garbage" at center
+        IAqtau[:,0] = 0.0
     
     # store in result dictionary
     # for external plotting

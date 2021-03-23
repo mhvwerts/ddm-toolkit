@@ -29,7 +29,7 @@ sim = sim_params()
 # =========================================
 #
 # load image structure function & apply REAL WORLD UNITS!
-IA = ImageStructureFunction.fromfilename(sim.ISE_outfpn)
+IA = ImageStructureFunction.fromFile(sim.ISE_outfpn)
 IA.real_world(sim.um_p_pix, sim.s_p_frame)
 
 

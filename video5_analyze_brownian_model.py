@@ -25,7 +25,7 @@ from configparser import ConfigParser
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ddm_toolkit import ImageStructureFunction
+from ddm_toolkit import ImageStructureFunction, ImageStructureFunctionRadAvg
 from ddm_toolkit import ISFanalysis_simple_brownian
 
 
@@ -47,16 +47,23 @@ else:
 params = ConfigParser(interpolation=None)
 params.read(argfn)
 
-# MW MOD: different file name for ISF file
-#ISF_fpn = params['ISFengine']['ISF_fpn']
 fnbase, fnext = os.path.splitext(argfn)
-ISF_fpn = fnbase+'_ISF.npz'
+
+
 
 # real-world dimensions
 um_p_pix = float(params['realworld']['px_size'])
 s_p_frame = float(params['realworld']['frm_period'])
 
 D_guess = float(params['analysis_brownian']['D_guess'])
+
+# is source file a full ISF or a radially average ISF?
+ISFradialaverage = False
+try:
+    if params['ISFengine']['ISF_radialaverage']=='True':
+        ISFradialaverage = True
+except KeyError:
+    pass
 
 
 #%%
@@ -65,7 +72,17 @@ D_guess = float(params['analysis_brownian']['D_guess'])
 # =========================================
 #
 # load image structure function & apply REAL WORLD UNITS!
-IA = ImageStructureFunction.fromfilename(ISF_fpn)
+
+# break point: TO DO!
+
+
+if ISFradialaverage:
+    ISF_fpn = fnbase+'_ISFRadAvg.npz'
+    IA = ImageStructureFunctionRadAvg.fromFile(ISF_fpn)
+else:
+    ISF_fpn = fnbase+'_ISF.npz'
+    IA = ImageStructureFunction.fromFile(ISF_fpn)
+    
 IA.real_world(um_p_pix, s_p_frame)
 
 

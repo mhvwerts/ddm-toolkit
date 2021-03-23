@@ -37,12 +37,13 @@ frm_period = 0.02
 # ISE_type       select type of ImageStructureEngine (0 is basic reference engine)
 #                (3 is currently the fastest engine)
 # ISE_Nbuf []    buffer size of image structure engine
-# ISF_fpn        file (path) name for storing/retrieving image structure function
+# ISF_radialaverage []    if "True": store radially averaged ISF
+#                         if False or not defined: store entire 2D ISF
 # ISF_display_overdrive   parameter to enhance contrast of video display 
 #
 ISE_type = 3
 ISE_Nbuf = 40
-ISF_fpn = datafiles/video0_ISF.npz
+ISF_radialaverage = True
 ISF_display_overdrive = 2.5
 
 
