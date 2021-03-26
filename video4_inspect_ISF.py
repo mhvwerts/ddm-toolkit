@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 #
-# simulate Brownian motion, generate synthetic video frames,
-# analyze with DDM algorithm
-#
-# by Greshma Babu and Martinus Werts, 2020
-#
-# diffusion coefficient in => diffusion coefficient out
+# Analyze experimental video
 #
 # STEP 4: Inspect ImageStructureFunction (videofig player)
 #

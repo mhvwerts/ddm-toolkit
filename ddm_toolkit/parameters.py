@@ -4,14 +4,17 @@
 parameters.py:
     classes to load and store DDM simulation and processing parameters
 """
-
 from sys import argv
 from configparser import ConfigParser
+
+
 
 class sim_params:
     """
     Read parameter file as specified in argument to script call (argv)
-    Read from "simul0_default_params.txt" if nothing in argv
+    Use default parameters from global string variable 'default_sim_params'
+    (end of this file), if no argument specified.
+    
     Subsequently populate all available simulation parameters.
    
 
@@ -70,20 +73,21 @@ class sim_params:
     um_p_pix = img_l/img_Npx   (simulated) video pixel step (1 / resolution)
     Nframes = Nt               number of frames in the (simulated) video
     """
-    def __init__(self):
-        default = "simul0_default_params.txt"
 
+    def __init__(self):
+        global default_sim_params
         params = ConfigParser()
         argc = len(argv)
         if argc == 1:
-            parfn = default
+            params.read_string(default_sim_params)
         elif argc == 2:
             parfn = argv[1]
+            params.read(parfn)
         else:
             print('argc = ',argc)
             print('argv = ',argv)
             raise Exception('invalid number of arguments')
-        params.read(parfn)
+
 
         self.D = float(params['simulation']['D'])
         self.Np = int(params['simulation']['Np'])
@@ -148,3 +152,65 @@ class sim_params:
 
         """
         pass
+        
+        
+default_sim_params = """# DEFAULT SIMULATION-ANALYSIS PARAMETERS (v210326)
+[simulation]
+# D  [µm2 s-1]  Fickian diffusion coefficient of the particles
+# Np []         number of particles
+# bl [µm]       length of simulation box sides (square box)
+# Nt []         number of time steps = number of frames
+# T  [s]        total simulation time
+#
+D = 0.1
+Np = 200
+bl = 200.
+Nt = 500
+T = 1000.
+
+[imgsynth]
+# img_border [µm]       width of border around simuation box (may be negative!)
+# img_w      [µm]       width parameter of 2D Gaussian to simulate optical
+#                       transfer function
+# img_Npx    []         width and height of synthetic image in pixels
+# img_I_offset []       apply a DC offset to the pixel intensity
+# img_I_noise []        apply a Gaussian noise to the pixel intensity. This
+#                       parameter is the standard deviation of the Gaussian
+#                       noise distribution ('scale' parameter in random.normal)
+#                       Set this to a negative value if no noise generation is
+#                       needed, or remove this parameter altogether.
+#                       (The integrated intensity of each particle is fixed
+#                       at 1.0. Also, the intensity is a float32 value.)
+# img_file              file (path) name for storing video stack
+#
+img_border = 16.0
+img_w = 2.0
+img_Npx = 256
+img_I_offset = 0.06
+img_I_noise = 0.03
+vidfpn = datafiles/simul1_result_video.npz
+
+[animation]
+# Nview   []  number of frames to play back (-1 means all frames)
+#
+Nview = -1
+
+[ISEngine]
+# ISE_type       select type of ImageStructureEngine (0 is basic reference engine)
+# ISE_Nbuf []    buffer size of image structure engine
+# ISE_outfpn        file (path) name for storing/retrieving image structure function
+#
+ISE_type = 0
+ISE_Nbuf = 100
+ISE_outfpn = datafiles/simul3_result_ISF.npz
+
+[analysis_brownian]
+# D_guess    [µm2 s-1]   Initial guess of diffusion coefficient for analysis of
+#                        the DDM image structure function using the simple
+#                        Brownian model
+# In this example, we use a value that is deliberately off by a factor of 11
+# from the simulation input value
+#
+D_guess = 1.1
+
+"""

@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Mar 23 22:44:34 2021
+DDM Toolkit, real experimental video processing, utility scripts
 
-@author: werts
+videoU1_NPZradialaverage.py:
+    convert a full ISF file to a radially-average ISF file.
+    A radially-averaged ISF takes much less memory and is therefore easier
+    to handle, to store, to transfer.    
 """
 
 from sys import argv
@@ -50,9 +53,6 @@ except KeyError:
 # =========================================
 #
 # load image structure function & apply REAL WORLD UNITS!
-
-# break point: TO DO!
-
 
 if isISFradialaverage:
     print('ISF NPZ file is already a radial average!')

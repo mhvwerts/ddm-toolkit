@@ -4,7 +4,7 @@
 # simulate Brownian motion, generate synthetic video frames,
 # analyze with DDM algorithm
 #
-# by Greshma Babu and Martinus Werts, 2020
+# The DDM Team, 2020-2021
 #
 # diffusion coefficient in => diffusion coefficient out
 #
