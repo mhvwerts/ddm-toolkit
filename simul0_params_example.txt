@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 [simulation]
 # D  [µm2 s-1]  Fickian diffusion coefficient of the particles
 # Np []         number of particles
