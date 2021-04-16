@@ -111,7 +111,7 @@ There are several other DDM codes available. Our DDM toolkit aims to be a standa
 Development
 -----------
 
-This toolkit is being maintained and developed by Martinus Werts (CNRS and ENS Rennes, France). It contains further contributions from Lancelot Barthe (ENS Rennes), Nitin Burman (IISER Mohali, India), Jai Kumar (IISER Bhopal, India) and Greshma Babu (IISER Bhopal, India). The students from IISER worked on DDM during their research projects at ENS Rennes in the context of the IISER-ENS exchange program.
+This toolkit is being maintained and developed by Martinus Werts (CNRS and ENS Rennes, France). It contains further contributions from Lancelot Barthe (ENS Rennes), Nitin Burman (IISER Mohali, India), Jai Kumar (IISER Bhopal, India) and Greshma Babu (IISER Bhopal, India). Suzon Pucheu, Elias Abboubi and Pierre Galloo-Beauvais (ENS Rennes) did further testing and application. The students from IISER worked on DDM during their research projects at ENS Rennes in the context of the IISER-ENS exchange program.
 
 
 Python version requirement and dependencies

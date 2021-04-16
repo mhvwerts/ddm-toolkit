@@ -23,7 +23,7 @@
 #       ddm_toolkit method...)
 #
 # TODO: Multiple runs with same parameter set (see above) + custom 
-#       statistics analysis (distribution function, see Elias Aboubi's project)
+#       statistics analysis (distribution function, see Elias Abboubi's project)
 #
 
 
