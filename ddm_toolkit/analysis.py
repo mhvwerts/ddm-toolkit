@@ -388,9 +388,11 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     # Dci = conf95(Dstdv, Ndata, 1) 
     ##
     ####
+    q = IA.q
+    result['q'] = q
     p_guess = [D_guess]
     p_fit, p_fitcov = curve_fit(kmod,
-                                IA.q[iq_low:iq_high], k_q[iq_low:iq_high],
+                                q[iq_low:iq_high], k_q[iq_low:iq_high],
                                 p0 = p_guess)
     Dfit = p_fit[0]
     Ndata = len(k_q[iq_low:iq_high])

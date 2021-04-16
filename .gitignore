@@ -8,5 +8,6 @@ private/
 package*/
 *.so
 *.tif
+*.pkl
 
 

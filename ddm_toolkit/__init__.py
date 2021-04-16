@@ -8,6 +8,7 @@ from .ddm import ImageStructureEngineSelector
 from .ddm import ImageStructureFunction
 from .ddm import ImageStructureFunctionRadAvg
 from .parameters import sim_params
+from .parameters import sim_params_empty
 from .analysis import ISFanalysis_simple_brownian
 from .functions import isnotebook
 
