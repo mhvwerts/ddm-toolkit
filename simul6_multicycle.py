@@ -11,6 +11,20 @@
 # compatibility, enabling remote/cloud computing
 #
 # by Pierre Galloo-Beauvais and Martinus Werts, 2021
+#
+# TODO: Enable use of external parameter file (via sys.argv) with new 
+#       parameters
+#          Ncycles:  number of cycles to be executed
+#          fnamepfx: filename prefix for series of results files
+#       This should then simply run the same simulation-analysis cycle 
+#       several times.
+#       Parametric study via series of parameter files or via custom scripts
+#       (using the full_cycle function which may eventually become a 
+#       ddm_toolkit method...)
+#
+# TODO: Multiple runs with same parameter set (see above) + custom 
+#       statistics analysis (distribution function, see Elias Aboubi's project)
+#
 
 
 import time
