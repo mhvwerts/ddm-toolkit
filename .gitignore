@@ -9,5 +9,5 @@ package*/
 *.so
 *.tif
 *.pkl
-
+*_log.txt
 
