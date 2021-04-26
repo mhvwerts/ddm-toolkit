@@ -91,6 +91,7 @@ Other DDM codes
 
 There are several other DDM codes available. Our DDM toolkit aims to be a standardized package for use internally in our lab. It aims also to provide a simple Python-based, generic, extensible toolkit that can be used for testing, benchmarking and comparing different approaches.
 
+- `cddm (Python)`_ by Petelin and Arko (documented toolkit, also for cross-DDM)
 - `diffmicro (C++/CUDA)`_ by Cerchiari et al. (fast DDM algorithms with/without GPU)
 - `quickDDM (Python)`_ by Symes and Penington (GPU acceleration)
 - `Differential-Dynamic-Microscopy---Python`_ by McGorty et al. (stack of Python notebooks)
@@ -98,6 +99,7 @@ There are several other DDM codes available. Our DDM toolkit aims to be a standa
 - `DDMcalc (Matlab)`_ by Helgeson et al.
 - `ConDDM (C++ source)`_ by Lu et al. (for confocal DDM, CUDA, 2012)
 
+.. _cddm (Python): https://github.com/IJSComplexMatter/cddm
 .. _diffmicro (C++/CUDA): https://github.com/giovanni-cerchiari/diffmicro
 .. _DDMcalc (Matlab): https://sites.engineering.ucsb.edu/~helgeson/ddm.html
 .. _DDM (Matlab; Python notebook): https://github.com/MathieuLeocmach/DDM
