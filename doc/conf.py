@@ -18,8 +18,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'DDM Toolkit'
-copyright = '2021, DDM Team'
-author = 'DDM Team'
+copyright = '2021, The DDM Team'
+author = 'The DDM Team'
 
 
 # -- General configuration ---------------------------------------------------

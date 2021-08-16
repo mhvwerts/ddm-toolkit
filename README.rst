@@ -92,7 +92,9 @@ TO DO
 -----
 
 - Document processing of real video files (scripts, Notebooks)
-- (Re)organize documentation.
+- Organize documentation (we have set up `Sphinx`_ in the ``.\doc`` directory)
+
+.. _Sphinx: https://www.sphinx-doc.org
 
 
 ---------------
