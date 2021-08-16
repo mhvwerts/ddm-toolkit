@@ -46,6 +46,7 @@ ISE_type = 3
 ISE_Nbuf = 40
 ISF_radialaverage = True
 ISF_display_overdrive = 2.5
+ISE_outfpn = datafiles/video0_test_ISF.npz
 
 
 

@@ -21,11 +21,10 @@ https://cecill.info/index.en.html
 
 import numpy as np
 from scipy.optimize import curve_fit
+import matplotlib.pyplot as plt
 
-## prepare for clean-up
-# from lmfit import Model 
 
-from ddm_toolkit.functions import closestidx, conf95
+from ddm_toolkit.utils import closestidx, conf95
 
 
 
@@ -64,16 +63,17 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     Returns
     -------
     dict
-        Dictionary with detailed analysis results.
+        Object with detailed analysis results and reporting methods.
     
 
     """
-   
-    # Return result data will be stored in dictionary
-    result = {} 
-    # I realize that a class + methods would be more elegant
-    # but putting the fit procedure in a function/sub-routine
-    # keeps it easier to read.
+    assert IA.real_world_units, "Real-world units should already have been applied to the ISF"
+    
+    # Return result data will be stored in ISFanalysis_simple_brownian_result object
+    result = ISFanalysis_simple_brownian_result() 
+    result.D_guess = D_guess
+    result.tau = IA.tau
+    result.q = IA.q
     
     # Factors for setting the "reasonably fittable range" of q
     # These factors might be put in parameter file, but hard-coded for now.
@@ -96,9 +96,9 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     
     # store in result dictionary
     # for external plotting
-    result['radISF_q'] = IA.q
-    result['radISF_tau'] = IA.tau
-    result['radISF_qtau'] = IAqtau[:,:]
+    result.radISF_q = IA.q
+    result.radISF_tau = IA.tau
+    result.radISF_qtau = IAqtau[:,:]
  
     
     # ===============================================
@@ -109,14 +109,14 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     def ISFmod(tau, A, B, k):
         f = np.exp(-k*tau)
         return A*(1-f) + B
-    # ISFmodel = Model(ISFmod) #lmfit legacy code
+
     
     # model function: k = Dq^2
     def kmod(q, D):
         return D*q**2
-    # kmodel = Model(kmod) #lmfit legacy code
+
     
-    result['D_guess_user'] = D_guess
+    result.D_guess_user = D_guess
     if verbose:
         print('D_guess (user):',D_guess,'µm2/s')
     
@@ -150,25 +150,6 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
 
             # fit ISF at select q values
             # create initial guess and parameter set-up
-
-            ####
-            ## (legacy lmfit-based code)
-            # kinit = k_opt
-            # Binit = IAqtau[0, iq_opt]
-            # Ainit = IAqtau[-1, iq_opt] - Binit
-            # ISFinit = ISFmodel.make_params(A = Ainit,
-            #                                B = Binit,
-            #                and ``lmfit``.                 k = kinit)
-            # constrain parameters to positive values to improve
-            #     fit convergence and stability
-            # ISFinit['A'].min = 0.0 ## TODO: find equivalent for curve_fit
-            # ISFinit['k'].min = 0.0 # may even define lower/upper limit for k
-            # fit = ISFmodel.fit(IAqtau[:,iq_opt], ISFinit, tau=IA.tau)
-            # k_q = fit.best_values['k']
-            # A_q = fit.best_values['A']
-            # B_q = fit.best_values['B']
-            ##
-            ####
             
             ## scipy.optimize.curve_fit based fitting
             kinit = k_opt
@@ -199,7 +180,7 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
             else:
                 D_guess = D_guess2
     
-    result['D_guess_refined'] = D_guess       
+    result.D_guess_refined = D_guess       
     if verbose:
         print('D_guess (refined):', D_guess, 'µm2/s')
     
@@ -219,12 +200,12 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     iq_high = closestidx(IA.q, q_high)
     q_high = IA.q[iq_high]
     
-    result['q_opt'] = q_opt
-    result['iq_opt'] = iq_opt
-    result['q_low'] = q_low
-    result['iq_low'] = iq_low
-    result['q_high'] = q_high
-    result['iq_high'] = iq_high  
+    result.q_opt = q_opt
+    result.iq_opt = iq_opt
+    result.q_low = q_low
+    result.iq_low = iq_low
+    result.q_high = q_high
+    result.iq_high = iq_high  
     
     if verbose:
         print('q_low: ',q_low,'µm-1')
@@ -243,24 +224,6 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     # here: fit full data (since optimal fit window would be larger than
     #       available data)
     for iqf in range(iq_low, iq_opt+1):
-        ####
-        ## (legacy lmfit-based code)
-        # qf = IA.q[iqf]
-        # kinit = D_guess*qf**2
-        # Binit = IAqtau[0, iqf] #todo: find a better guess, this one is always zero!
-        # Ainit = IAqtau[-1, iqf] - Binit
-        # ISFinit = ISFmodel.make_params(A = Ainit,
-        #                                B = Binit,
-        #                                k = kinit)
-        # ISFinit['A'].min = 0.0 #TO DO: include these constraints in the scipy curve_fit fitting
-        # ISFinit['k'].min = 0.0 # may even define lower/upper limit for k
-        # fit = ISFmodel.fit(IAqtau[:,iqf], ISFinit, tau=IA.tau)
-        # k_q[iqf] = fit.best_values['k']
-        # A_q[iqf] = fit.best_values['A']
-        # B_q[iqf] = fit.best_values['B']
-        ##
-        ####
-        
         ## scipy.optimize.curve_fit based fitting
         qf = IA.q[iqf]
         kinit = D_guess*qf**2
@@ -275,41 +238,16 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
   
         # sample specific fits (for plotting and diagnostic purposes)
         if (iqf==iq_low):
-            result['ISFmodelfit_qlow'] = ISFmod(IA.tau, *p_fit)
-            #result['ISFmodelfit_qlow'] = ISFmodel.eval(fit.params,tau=IA.tau)
+            result.ISFmodelfit_qlow = ISFmod(IA.tau, *p_fit)
+            
         if (iqf==iq_opt):
-            result['ISFmodelfit_qopt'] = ISFmod(IA.tau, *p_fit)
-            #result['ISFmodelfit_qopt'] = ISFmodel.eval(fit.params,tau=IA.tau)
+            result.ISFmodelfit_qopt = ISFmod(IA.tau, *p_fit)
     #
     # FIT LOOP / PART B: Fit between q_opt and q_high 
     #
     # here: reduce fit range to have 'optimal fit window'
     # use fit result for new initial guess
     for iqf in range(iq_opt+1, iq_high+1):
-        ####
-        ## (legacy lmfit-based code)
-        # qf = IA.q[iqf]
-        # kinit = D_guess*qf**2 # take expected value on basis of D_guess
-        # Binit = B_q[iqf-1] # from previous fit
-        # Ainit = A_q[iqf-1] # take amplitude guess from previous fit
-        # ISFinit = ISFmodel.make_params(A = Ainit,
-        #                                B = Binit,
-        #                                k = kinit)
-        # ISFinit['A'].min = 0.0
-        # ISFinit['k'].min = 0.0 # may even define lower/upper limit for k
-        # # reduce fit range to have 'optimal fit window'
-        # tau_opt = optfac/kinit
-        # itau_opt = closestidx(IA.tau, tau_opt)
-        # tau_opt = IA.tau[itau_opt]
-        
-        # fit = ISFmodel.fit(IAqtau[:itau_opt,iqf], ISFinit,
-        #                    tau=IA.tau[:itau_opt])
-        # k_q[iqf] = fit.best_values['k']
-        # A_q[iqf] = fit.best_values['A']
-        # B_q[iqf] = fit.best_values['B']  
-        ##
-        ####
-        
         ## scipy.optimize.curve_fit based fitting
         qf = IA.q[iqf]
         kinit = D_guess*qf**2 # take expected value on basis of D_guess
@@ -367,29 +305,19 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     p_fit[2] = k_q[iq_high]
     p_fit[0] = A_q[iq_high] 
     p_fit[1] = B_q[iq_high] 
-    result['ISFmodelfit_qhigh'] = ISFmod(IA.tau, *p_fit)
-    #result['ISFmodelfit_qhigh'] = ISFmodel.eval(fit.params,tau=IA.tau)
+    result.ISFmodelfit_qhigh = ISFmod(IA.tau, *p_fit)
+
 
     # store A(q), B(q), k(q)    
-    result['k_q'] = k_q
-    result['A_q'] = A_q
-    result['B_q'] = B_q
+    result.k_q = k_q
+    result.A_q = A_q
+    result.B_q = B_q
     
     # Steps 7-8: fit k
     
     ####
-    ## (legacy lmfit-based code)
-    # kfitinit = kmodel.make_params(D = D_guess)
-    # kfitinit['D'].min = 0 # TODO: find equivalent for curve_fit
-    # fit = kmodel.fit(k_q[iq_low:iq_high], kfitinit, q=IA.q[iq_low:iq_high])
-    # Dfit = fit.params['D'].value
-    # Ndata = fit.ndata
-    # Dstdv = fit.covar[0,0]**0.5
-    # Dci = conf95(Dstdv, Ndata, 1) 
-    ##
-    ####
-    q = IA.q
-    result['q'] = q
+    q = result.q
+
     p_guess = [D_guess]
     p_fit, p_fitcov = curve_fit(kmod,
                                 q[iq_low:iq_high], k_q[iq_low:iq_high],
@@ -402,14 +330,92 @@ def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
     if verbose:
         print('D (fit):',Dfit,'µm2/s (+/- ', Dci,', 95% CI)')
 
-    result['D_fit'] = Dfit
-    result['D_fit_CI95'] = Dci
+    result.D_fit = Dfit
+    result.D_fit_CI95 = Dci
 
     # re_update q_high (in case analysis finished prematurely)
     q_high = IA.q[iq_high]
-    result['q_high'] = q_high
-    result['iq_high'] = iq_high  
+    result.q_high = q_high
+    result.iq_high = iq_high  
 
     return result
     
     
+class ISFanalysis_simple_brownian_result:
+    def print_report(self):
+        print('D_guess (user):', self.D_guess,'µm2/s')
+        print('D_guess (refined):', self.D_guess_refined, 'µm2/s')
+        print('q_low: ', self.q_low,'µm-1')
+        print('q_opt: ', self.q_opt,'µm-1')
+        print('q_high:', self.q_high,'µm-1')
+        print('q_max: ', self.q[-1],'µm-1')
+        print('D (fit):', self.D_fit, 
+              'µm2/s (+/- ', self.D_fit_CI95, ', 95% CI)')
+        
+    def show_ISF_radavg(self):
+        plt.figure("ISF (radially averaged)")
+        plt.clf()
+        plt.subplot(211)
+        plt.title('radially averaged ISF')
+        for itau in range(1,11):
+            plt.plot(self.q[1:],self.radISF_qtau[itau,1:])
+        for itau in range(20,len(self.tau),10):
+            plt.plot(self.q[1:],self.radISF_qtau[itau,1:])
+        plt.xlabel('q [µm-1]')
+        plt.ylabel('ISF')
+        plt.subplot(212)
+        plt.imshow(self.radISF_qtau[1:,1:].T, origin = 'lower', aspect ='auto',
+                   extent =(self.tau[1], self.tau[-1],
+                            self.q[1], self.q[-1]))
+        plt.colorbar()
+        plt.ylabel('q [µm-1]')
+        plt.xlabel('tau [s]')
+        
+    def show_fits(self):
+        plt.figure('Fits at q_low, q_opt, q_high')
+        plt.clf()
+        plt.subplot(311)
+        plt.title('Fits at q_low, q_opt, q_high (refined D_guess)')
+        plt.plot(self.tau[1:], self.radISF_qtau[1:,self.iq_low],'o')
+        plt.plot(self.tau, self.ISFmodelfit_qlow)
+        plt.ylabel('ISF')
+        plt.subplot(312)
+        plt.plot(self.tau[1:], self.radISF_qtau[1:,self.iq_opt],'o')
+        plt.plot(self.tau, self.ISFmodelfit_qopt)
+        plt.ylabel('ISF')
+        plt.subplot(313)
+        plt.plot(self.tau[1:], self.radISF_qtau[1:,self.iq_high],'o')
+        plt.plot(self.tau, self.ISFmodelfit_qhigh)
+        plt.ylabel('ISF')
+        plt.xlabel('tau [s]')
+        
+    def show_Aq_Bq_kq(self):
+        plt.figure('Result of simple Brownian analysis of DDM')
+        plt.clf()
+        
+        plt.subplot(311)
+        plt.title('Simple Brownian model analysis of ISF')
+        plt.plot(self.q[self.iq_low:self.iq_high],
+                 self.k_q[self.iq_low:self.iq_high],'o')
+        plt.plot(self.q, self.D_guess*self.q**2, label = 'init. guess')
+        plt.plot(self.q, self.D_fit*self.q**2, label = 'fit')
+        plt.ylim(0, np.max(self.k_q)*1.3)
+        plt.xlim(xmin=0,xmax=self.q[-1])
+        plt.ylabel('k(q) [s-1]')
+        plt.legend()
+        
+        plt.subplot(312)
+        plt.plot(self.q[self.iq_low:self.iq_high],
+                 self.A_q[self.iq_low:self.iq_high],'o')
+        plt.ylim(ymin=0)
+        plt.xlim(xmin=0,xmax=self.q[-1])
+        plt.ylabel('A(q) [a.u.]')
+        
+        plt.subplot(313)
+        plt.plot(self.q[self.iq_low:self.iq_high],
+                 self.B_q[self.iq_low:self.iq_high]/self.A_q[self.iq_low:self.iq_high],'o')
+        plt.xlim(xmin=0,xmax=self.q[-1])
+        plt.ylabel('B(q)/A(q)')
+        plt.xlabel('q [µm-1]')
+        
+

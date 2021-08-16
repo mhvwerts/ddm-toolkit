@@ -125,14 +125,22 @@ tif.close()
 print()
 print('#frames contributing to averaged ISF (ISFcount): {0:d}'.format(ISE.ISFcount))
 
+
+
+print('No ISF file saved!')
+assert 1==0, 'TO DO! resultfn (ISF file name) to be read from video_params. txt PARAMETER FILE and used (for compatibility with new xDDM1 and xDDM2)'
+
+
+
+
 if doISFradialaverage:
     # radially average the ISF and save it
     IA = ImageStructureFunction.fromImageStructureEngine(ISE)
-    resultfn = fnbase+'_ISFRadAvg.npz'
+    # REMOVE: resultfn = fnbase+'_ISFRadAvg.npz'
     IA.saveRadAvg(resultfn)
 else:
     # just save the whole x,y ISF
-    resultfn = fnbase+'_ISF.npz'
+    # REMOVE: resultfn = fnbase+'_ISF.npz'
     ISE.save(resultfn)
 
     

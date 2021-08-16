@@ -54,6 +54,10 @@ from scipy.ndimage import gaussian_filter
 PRNG = Generator(PCG64())
 
 
+###############################################
+# SECTION: Fundamental Brownian simulation code
+###############################################
+
 def random_coordinates(Np, d):
     """Generate the coordinates in 1D of a collection of Np
     evenly distributed particles.
@@ -112,6 +116,10 @@ def brownian_softbox(x0, Nt, dt, D, bl):
     return r
 
 
+
+###############################################
+# SECTION: Fundamental image synthesis code
+###############################################
 
 def imgsynth1(px, py, w, x0, y0, x1, y1, Nx, Ny):
     '''
@@ -251,4 +259,127 @@ def imgsynth2(px, py, w, x0, y0, x1, y1,
     else:
         img2 = img2hi
     return img2
+
+
+
+####################################################
+# SECTION: Simulation interface classes
+####################################################
+
+class ParticleSim2DBrownian:
+    """Particle simulator class (2D Brownian motion)
+    
+    Takes DDMparameter object as input, generates particle trajectories
+    
+    Properties
+    
+    x1, y1 (np.array) => x resp. y coordinates ()
+        
+    """
+    def __init__(self, ddmpars):
+        
+        # store reference to all parameters
+        self.ddmpars = ddmpars
+        
+        #set initial particle coordinates
+        x0 = random_coordinates(ddmpars.sim_Np, ddmpars.sim_bl)
+        y0 = random_coordinates(ddmpars.sim_Np, ddmpars.sim_bl)
+        #create array of coordinates of the particles at different timesteps
+        self.x1 = brownian_softbox(x0, ddmpars.sim_Nt, ddmpars.sim_dt,
+                                       ddmpars.sim_D, ddmpars.sim_bl)
+        self.y1 = brownian_softbox(y0, ddmpars.sim_Nt, ddmpars.sim_dt,
+                                       ddmpars.sim_D, ddmpars.sim_bl)
+        
+    def get_coordinates2D(self, ix):
+        """return particle coordinates at frame(time) index ix
+        
+        returns
+        
+        a tuple x, y of vectors containing sim_Npart coordinates  
+        """
+        return (self.x1[:,ix], self.y1[:,ix])
+        
+    def stream_coordinates2D(self):
+        """iterator: streams particle coordinates, one time-step at a time
+        
+        can only iterated once!
+        
+        typical use case
+        
+        # psimul is an instance of ParicleSim2DBrownian
+        for x, y in psimul.stream_coordinates2D():
+            # x contains the x coordinates of all particles of the present time step
+            # y contains the y coordinates of all particles of the present time step
+            pass
+            
+        """
+        for ix in range(self.ddmpars.sim_Nt):
+            yield (self.x1[:,ix], self.y1[:,ix])
+
+
+
+class ImageSynthesizer2D:
+    """Synthesize images/stream of images from particle coordinates
+    
+    TODO: should also choose the exact imgsynthesis algorithm etc.
+    """
+    def __init__(self, particle_simulator):
+        self.get_coordinates = particle_simulator.get_coordinates2D
+        self.coordstream = particle_simulator.stream_coordinates2D()
+        
+        ddmpars = particle_simulator.ddmpars
+        # transfer all parameters
+        self.ddmpars = ddmpars
+        
+        # essential parameters
+        self.Nframes = ddmpars.Nframes
+        
+        # extract parameters for synthesis
+        self.sim_img_w = ddmpars.sim_img_w
+        self.sim_img_border = ddmpars.sim_img_border
+        self.sim_bl = ddmpars.sim_bl
+        self.sim_img_Npx = ddmpars.sim_img_Npx
+
+        try:
+            self.sim_img_I_offset = ddmpars.sim_img_I_offset
+        except AttributeError:
+            self.sim_img_I_offset = None # None means no offset to be applied
+        
+        try:
+            self.sim_img_I_noise = ddmpars.sim_img_I_noise
+        except AttributeError:
+            self.sim_img_I_noise = -1.0 # negative noise means no noise
+
+    
+    def make_imgframe(self, px, py):
+        """generate a synthetic image from vectors of particle coordinates
+        
+        applies the parameters defined in the ddmpars of particle_simulator object
+        (i.e. the parameters are transmitted from the particle simulator to the
+        image synthesizer, only the particle simulator takes a specific DDMparameter object)
+        
+        """
+        #TODO choice between imgsynth1 and imgsynth2 (in __init__)
+        #     and tune subpix value for imgsynth2
+        img = imgsynth2(px, py, 
+                         self.sim_img_w,
+                         -self.sim_img_border, -self.sim_img_border, 
+                         self.sim_bl+self.sim_img_border, self.sim_bl+self.sim_img_border,
+                         self.sim_img_Npx, self.sim_img_Npx,
+                         subpix = 2)
+        if not (self.sim_img_I_offset is None):
+            img += self.sim_img_I_offset
+        if not (self.sim_img_I_noise <= 0.0):
+            imgnoise = PRNG.normal(loc = 0.0, scale = self.sim_img_I_noise,
+                                   size = (self.sim_img_Npx, self.sim_img_Npx))
+            img += imgnoise 
+        return img
+    
+    def get_frame(self, ix_frame):
+        x, y = self.get_coordinates(ix_frame)
+        return self.make_imgframe(x, y)
+        
+    def stream_frames(self):
+        for x, y in self.coordstream:
+            yield self.make_imgframe(x, y)
 

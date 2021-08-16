@@ -2,19 +2,17 @@
 ddm_toolkit: Python Toolkit for Differential Dynamic Microscopy
 ===============================================================
 
-
 ------------
 Introduction
 ------------
 Dynamic differential microscopy (DDM) is a digital video-microscopic technique for studying the dynamics of microscopic systems, such as small particles in a liquid. See, *e.g.*,: [1] Cerbino and Trappe, *Phys. Rev. Lett.* **2008**, *100*, 188102; [2] Giavazzi et al. *Phys. Rev. E* **2009**, *80*, 031403; [3] Germain et al. *Am. J. Phys.* **2016**, *84*, 202.
 
-In our lab, we are currently exploring DDM for nanoparticle characterization in microfluidics. DDM relies on numerical processing of videomicroscopy image sequences using specific computer code. This Github repository centralizes the contributions made to our lab's DDM Python code by the students and investigators who participate in this research. The aim is to constitute a toolkit that students and colleagues can download and use whenever they feel like doing DDM. At present, the toolkit is in a preliminary and sparsely documented state, "mais a le mérite d'exister" (as we say in France). Do not hesitate to contact us if you are interested in using it and helping develop it further.
+DDM relies on numerical processing of videomicroscopy image sequences using specific computer code.In our lab, we are currently exploring DDM for nanoparticle characterization in microfluidics. This Github repository centralizes the contributions made to our lab's DDM Python code by the students and investigators who participate in this research. The aim is to constitute a standardized toolkit that students and colleagues can download and use for DDM. At present, the toolkit is in a preliminary and sparsely documented state. Do not hesitate to contact us if you are interested in using it and helping develop it further.
 
 Our DDM toolkit has several specific original features:
 
 - The DDM processing algorithm can process arbitrarily long input video streams, with memory requirements only determined by the duration (number of time lags) of the ISF. The individual video frames are read one-by-one from the video file on disk and then processed. The processing 'engine' accumulates an ISF, with each incoming frame adding to the overall ISF.
-- The algorithm provides several pre-processing options (averaging of frames, picking one frame for every N incoming frames, skipping frames at the start, apodization of incoming images).
-- The toolkit works with standard (OME) TIFF image-stacks thanks to inclusion of Gohlke's ``tifffile.py``.
+- The toolkit works with standard (OME) TIFF image-stacks via Gohlke's ``tifffile.py``.
 - It includes basic Brownian simulation and video synthesis routines for generating idealized, artificial video-streams that can be used to test any specific DDM processing.
 - The combination of simulation and processing enables us to cross-check the correct implementation of both the simulation and the DDM analysis.
 
@@ -30,9 +28,11 @@ There is no specific installable package yet for this toolkit, and it does not n
 -----------
 Basic usage
 -----------
-We encourage following a step-by-step approach to the generation and processing of DDM data: each step is carried out by a short custom-written Python script that uses the functionality from the ``ddm_toolkit`` module. The result of each step is written to a data file, which is then passed to the script that carries out the next step. Since some of the steps take quite some processing time, the step-by-step approach avoids that you need to wait long minutes each time you run your script after having made only minor changes.
+We present here a step-by-step approach to the generation and processing of DDM data: each step is carried out by a short custom-written Python script that uses the functionality from the ``ddm_toolkit`` module, and is called from the command-line interface (CLI). The result of each step is written to a data file, which is then passed to the script that carries out the next step. Since some of the steps take quite some processing time, the step-by-step approach avoids that you need to wait long minutes each time you run your script after having made only minor changes.
 
-In order to get an idea of the work flow, you may run a sequence which first generates a simulated video stack of 2D Brownian motion. This synthetic video is subsequently processed by the DDM algorithm, and analyzed in terms of the standard Brownian model.
+In addition to the CLI workflow, we are now actively developing Jupyter Notebooks that directly use the functions from the ``ddm_toolkit`` module (*i.e.* the ``ddm_toolkit`` does the heavy lifting, the Notebooks controls the analysis and display the results). Jupyter Notebooks allow for more interactivity, and enable direct documentation of the analyses carried out. Here, in this ``README`` we focus on the basic CLI workflow.
+
+In order to get an idea of this CLI workflow, you may run a sequence which first generates a simulated video stack of 2D Brownian motion. This synthetic video is subsequently processed by the DDM algorithm, and analyzed in terms of the standard Brownian model.
 
 You will need to use a command prompt in your favorite Python 3 environment (we recommend Anaconda Python `distribution`_ , and then tuning Conda to the `conda-forge`_ channel).
 
@@ -47,43 +47,52 @@ Two-dimensional Brownian motion of a set of particles is generated and converted
 
    python simul1_simulate_synthesize.py
 
-You can then visualize the generated video using:
+You can then visualize the simulated video using:
 
 .. code-block::
 
    python simul2_inspect_video.py
 
 
-Then, calculation of the ISF and visual inspection:
+Then, calculation of the ISF from the simulated video:
 
 .. code-block::
 
-    python simul3_calculate_ISF
-    python simul4_inspect_ISF.py
+    python simul3_ISF_from_simulation.py
 
 
-And finally, analysis of the ISF in terms of the simple Brownian model:
+This ISF can be displayed as a video:
 
 .. code-block::
 
-    python simul5_analyze.py
+    python xDDM1_inspect_ISF.py
 
 
-The simulation and analysis parameters required by the scripts are set using a (default) parameter file ``simul0_default_params.txt``. Alternative parameter files may be used by supplying their filename as an argument to the Python script.
+And finally, the ISF is analyzed in terms of the simple Brownian model:
 
-Execution of this sequence of scripts is a basic way of testing the code base. A nice aspect is that intermediate results (synthetic video, ISF) are stored in the ``datafiles`` directory, so that it is not necessary to re-calculate them over and over when experimenting with a script or an analysis.
+.. code-block::
+
+    python xDDM2_analyze_brownian_model.py
+
+
+The simulation and analysis parameters required by the scripts are set using using (default) parameter settings from the code (these can be found in ``ddm_toolkit.parameters``). Alternative parameter sets can be supplied as text files by using their filename as an argument to the Python script. For example:
+
+.. code-block::
+
+    python simul1_simulate_synthesize.py simul0_params_example.txt
+    # etc.
+
+
+Execution of this sequence of CLI scripts is a basic way of testing the code base. 
 
 
 -----
 TO DO
 -----
 
-- Improve automated Brownian analysis with noisy data: stop analysis at high B(q)/A(q) ratio, make stopping criterion configurable.
-- Single monolithic script with repeated simulation-analysis sequence
-- Include current ``simul`` script cycle in ``pytest`` tests (copy files and adapt)
-- Document processing of real video files
-- Convergence between ``simul3``-``simul5`` and ``video3``-``video5`` scripts (based on ``video`` scripts)
+- Document processing of real video files (scripts, Notebooks)
 - (Re)organize documentation.
+
 
 ---------------
 Other DDM codes
@@ -113,7 +122,7 @@ There are several other DDM codes available. Our DDM toolkit aims to be a standa
 Development
 -----------
 
-This toolkit is being maintained and developed by Martinus Werts (CNRS and ENS Rennes, France). It contains further contributions from Lancelot Barthe (ENS Rennes), Nitin Burman (IISER Mohali, India), Jai Kumar (IISER Bhopal, India) and Greshma Babu (IISER Bhopal, India). Suzon Pucheu, Elias Abboubi and Pierre Galloo-Beauvais (ENS Rennes) did further testing and application. The students from IISER worked on DDM during their research projects at ENS Rennes in the context of the IISER-ENS exchange program.
+This toolkit is being maintained and developed by Martinus Werts (CNRS and ENS Rennes, France). It contains contributions from Lancelot Barthe (ENS Rennes), Nitin Burman (IISER Mohali, India), Jai Kumar (IISER Bhopal, India), Greshma Babu (IISER Bhopal) and Ankit Lade (IISER Bhopal). Suzon Pucheu, Elias Abboubi and Pierre Galloo-Beauvais (ENS Rennes) did further testing and application. The students from IISER worked on DDM during their research projects at ENS Rennes in the context of the IISER-ENS exchange program.
 
 
 Python version requirement and dependencies
@@ -141,7 +150,7 @@ An important way of testing scientific software is to use it on well-defined tes
 
 Code testing
 ============
-A very rudimentary code testing infrastructure is in place, using `pytest`_. See the `README file in the tests directory`_ for further information
+A rudimentary code testing infrastructure is in place, using `pytest`_. See the `README file in the tests directory`_ for further information
 
 .. _pytest: https://docs.pytest.org/en/stable/
 .. _README file in the tests directory: ./tests/README.rst

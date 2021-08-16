@@ -6,55 +6,62 @@
 #
 # The DDM Team, 2020-2021
 #
-# diffusion coefficient in => diffusion coefficient out
 #
-# STEP 2: Play synthetic video (videofig player)
+# STEP 2: Visualize synthetic video (videofig player)
+#
+# Usage:
+#        python3 simul2_inspect_video.py [<name of parameter file>]
 #
 
 
-import numpy as np
+from ddm_toolkit import DDMParams_from_configfile_or_defaultpars
+
+from ddm_toolkit.workflows import simul2_load_simulation_result_file
 
 from ddm_toolkit.videofig import videofig 
-from ddm_toolkit import sim_params
 
 
-# Get parameters
-sim = sim_params()
-
-# overdrive parameter (boost brightness)
-#TODO in parameter file?
-img_overdrive = 1.7
-
-# LOAD and VISUALIZE video stack
-im=np.load(sim.vidfpn)
-img=im['img']
-im.close()
-if (sim.Nview < 0):
-    Ni = img.shape[0]
-else:
-    Ni = sim.Nview
+if __name__ == "__main__":
+    #######################
+    # This script is designed to run from the command line or via Spyder IDE
+    #
+    # Not for use in a Notebook
+    ########################
     
-vmx = img.max() / img_overdrive # avoid autoscale of colormap
+    params = DDMParams_from_configfile_or_defaultpars()
+    simulfpn = params.vidfpn
 
-vf_redraw_init=False
-vf_redraw_img=None
-def vf_redraw(fri, ax):
-    global img
-    global vmx
-    global vf_redraw_init
-    global vf_redraw_img
-    if not vf_redraw_init:
-        vf_redraw_img=ax.imshow(img[fri], 
-                                vmin = 0.0, vmax = vmx, 
-                                origin = 'lower', animated = True)
-        vf_redraw_init=True
+    # LOAD data
+    # LOAD data (and parameters stored inside the file, but these are not used)
+    ims, params_simulfile = simul2_load_simulation_result_file(simulfpn)
+    
+    # prepare videoplayer
+    if (params.video_Nview < 0):
+        Ni = ims.shape[0]
     else:
-        vf_redraw_img.set_array(img[fri])
-
-print("[ENTER]: toggle pause/play")
-print("[LEFT]/[RIGHT]: scroll frames")
-print("[MOUSE]: manipulate time bar")
-
-videofig(Ni, vf_redraw, play_fps=10)
-
+        Ni = params.Nview
+        
+    vmx = ims.max() / params.video_overdrive # avoid autoscale of colormap
+    
+    vf_redraw_init=False
+    vf_redraw_img=None
+    
+    def vf_redraw(fri, ax):
+        global ims
+        global vmx
+        global vf_redraw_init
+        global vf_redraw_img
+        if not vf_redraw_init:
+            vf_redraw_img=ax.imshow(ims[fri], 
+                                    vmin = 0.0, vmax = vmx, 
+                                    origin = 'lower', animated = True)
+            vf_redraw_init=True
+        else:
+            vf_redraw_img.set_array(ims[fri])
+    
+    print("[ENTER]: toggle pause/play")
+    print("[LEFT]/[RIGHT]: scroll frames")
+    print("[MOUSE]: manipulate time bar")
+    
+    videofig(Ni, vf_redraw, play_fps=10)
 
