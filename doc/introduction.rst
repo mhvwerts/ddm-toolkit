@@ -27,7 +27,10 @@ To do
 
 - Simplify the ``README.rst`` of the GitHub repository, and move the details to this documentation.
 - Organize the documentation.
+- `nbsphinx`_ may be handy: it enables the inclusion of Jupyter Notebooks into the documentation 
 - This introduction should become the introduction to DDM Toolkit, not the introduction to the process of documenting DDM Toolkit!
 - Add the (NumPy-style) docstrings in the Toolkit's code to the automatic Sphinx documentation (I believe that this is typically some 'Appendix' describing the 'API').
 - Improve the docstrings of the code.
+
+.. _nbsphinx: https://nbsphinx.readthedocs.io
 
