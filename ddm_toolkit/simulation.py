@@ -393,14 +393,15 @@ class ImageSynthesizer2D:
         image synthesizer, only the particle simulator takes a specific DDMparameter object)
         
         """
-        #TODO choice between imgsynth1 and imgsynth2 (in __init__)
-        #     and tune subpix value for imgsynth2
+        #TODO Choose between imgsynth1 and imgsynth2 (in __init__)?
+        #     Tune subpix value for imgsynth2 (currently set to 3).
+        #     See if we can get more speedy algorithm for image synthesis
         img = imgsynth2(px, py, 
                          self.sim_img_w,
                          -self.sim_img_border, -self.sim_img_border, 
                          self.sim_bl+self.sim_img_border, self.sim_bl+self.sim_img_border,
                          self.sim_img_Npx, self.sim_img_Npx,
-                         subpix = 2)
+                         subpix = 3)
         if not (self.sim_img_I_offset is None):
             img += self.sim_img_I_offset
         if not (self.sim_img_I_noise <= 0.0):
