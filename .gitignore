@@ -4,11 +4,12 @@ __pycache__/
 archive/
 local/
 private/
+package*/
 *.zip
 *.npz
-package*/
 *.so
 *.tif
 *.pkl
 *_log.txt
+*.tar.gz
 

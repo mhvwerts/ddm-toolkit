@@ -122,24 +122,55 @@ def brownian_softbox(x0, Nt, dt, D, bl):
 ###############################################
 
 def imgsynth1(px, py, w, x0, y0, x1, y1, Nx, Ny):
-    '''
-        Input parameters:
-        1D array of particle x coordinates px[i_particle] (µm)
-        1D array of particle y coordinates py[i_particle] (µm)
-        radial width of Gaussian (µm)
-        x0,y0: bottom left of viewport (µm)
-        x1,y1: top right of viewport  (µm)
-        Nx: number of x pixels
-        Ny: number of y pixels
-        
-        Output:
-        imgsynth: 2D numpy array with pixel intensities
-        
-        The individual Gaussians are normalised (2D integral = 1), such that
-        np.sum(img) is equal to number of particles (within numerical error)
+    """Create a synthetic digital image from particle coordinates.
+    
+    Each particle is represented as a 2D Gaussian of radial width w. The
+    image consists of the sum of the Gaussians of each particle.
+    
+    Parameters
+    ----------
+    px : 1D ndarray float 
+        Particle x coordinates (µm), i.e. px[i_particle].
+    py : 1D ndarray float 
+        Particle x coordinates (µm), i.e. px[i_particle].
+    w : float
+        Radial width of Gaussian (µm).
+    x0, y0 : float, float
+        Bottom left coordinates of viewport (µm).
+    x1, y1 : float, float
+        Top right coordinates of viewport (µm).
+    Nx, Ny : int, int
+        Number of pixel in x resp. y direction.
 
-        The present implementation takes quite a while to calculate an image.
-    '''
+
+    Returns
+    -------
+    img : 2D ndarray
+        Digital image of pixel intensities.
+    
+    
+    Details
+    -------
+       
+    The individual Gaussians are normalised (2D integral = 1), such that
+    np.sum(img) is equal to number of particles (within numerical error)
+
+    The pixel coordinates are the centers of each pixel, *i.e.* (0.0, 0.0) is
+    the pixel with (0.0, 0.0) at its center. Depending on the choice of the
+    viewport coordinates, one may or may not have (0.0, 0.0) as an actual pixel
+    center. Note that the viewport coordinates are the edges of the 
+    image. Therefore, these coordinates are positioned *half a pixel width*
+    from the center of the edge pixel. This gives a coherent set of
+    coordinates: *e.g.*, with bottom left (-10.24,-10.24) and 
+    top right (10.24,10.24) and 256 pixels, the center coordinates of the bottom 
+    left pixel will be (-10.20,-10.20), and the center (0,0) will be 
+    *midway between* pixel numbers 127 and 128 (in the exact center of the
+    image). The edge coordinates are then indeed as specified.
+
+    The present implementation is relatively slow, but precise.
+
+    """
+ 
     Np = len(px) # Np: number of particles
     assert len(py) == Np, 'px and py should have same number of elements'
     dx = (x1-x0)/Nx
@@ -147,6 +178,8 @@ def imgsynth1(px, py, w, x0, y0, x1, y1, Nx, Ny):
     assert np.isclose(dx,dy), 'need square pixels! non-square pixels are not supported'
     
     img = np.zeros((Nx,Ny))
+    
+    #TODO add option to enable user to retrieve x, y scales and/or coordinates
     xco = (np.arange(Nx)+0.5)*dx + x0
     yco = (np.arange(Ny)+0.5)*dy + y0
     xc,yc = np.meshgrid(xco,yco) 
@@ -213,6 +246,7 @@ def imgsynth2(px, py, w, x0, y0, x1, y1,
     subpix: calculate the image on a 'subpix'-times oversampled
             grid (e.g. subpix = 2 -> 512x512 image becomes
             1024x1024 for synthesis, then re-binned to 512x512)
+            We recommend using odd numbers (1, 3, 5)
     
     Output:
     imgsynth2: 2D numpy array with pixel intensities
