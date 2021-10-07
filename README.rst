@@ -87,6 +87,28 @@ The simulation and analysis parameters required by the scripts are set using usi
 Execution of this sequence of CLI scripts is a basic way of testing the code base. 
 
 
+
+---------------------------------------
+Building the documentation using Sphinx
+---------------------------------------
+
+The ``doc\`` folder was initialized using ``sphinx-quickstart``. Therefore, it is easy to build the documentation.
+
+From within the ``doc\`` folder, run the following:
+
+.. code-block::
+
+    make html
+
+
+or:
+
+.. code-block::
+
+    make pdflatex
+
+
+
 -----
 TO DO
 -----
