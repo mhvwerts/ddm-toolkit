@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from time import time
 import numpy as np
-from ddm_toolkit import ImageStructureEngine, ImageStructureFunction
+from ddm_toolkit.ddm import ImageStructureEngine, ImageStructureFunction
 import matplotlib.pyplot as plt
 
 try:

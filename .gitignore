@@ -5,6 +5,7 @@ archive/
 local/
 private/
 package*/
+/datafiles/*
 *.zip
 *.npz
 *.so
@@ -12,4 +13,5 @@ package*/
 *.pkl
 *_log.txt
 *.tar.gz
+.DS_Store
 

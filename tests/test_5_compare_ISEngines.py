@@ -25,7 +25,7 @@ import pytest
 import ddm_toolkit
 from ddm_toolkit.ddm import best_available_engine_model
 from ddm_toolkit.ddm import available_engine_models
-from ddm_toolkit import DDMParams
+from ddm_toolkit.params import DDMParams
 from ddm_toolkit.workflows import simul1_make_simulated_image_stack
 from ddm_toolkit.workflows import compare_all_ImageStructureEngines
 

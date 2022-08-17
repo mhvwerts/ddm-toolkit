@@ -11,7 +11,7 @@ from ddm_toolkit.simulation import random_coordinates
 from ddm_toolkit.simulation import imgsynth1
 from ddm_toolkit.simulation import imgsynth2
 
-from ddm_toolkit.tabulate import tabulate
+from ddm_toolkit.utils.tabulate import tabulate
 
 print('')
 print('4. Subpixel test')

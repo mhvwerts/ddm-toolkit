@@ -66,7 +66,7 @@ class ImageStructureEngine7:
         self.TPB = (self.BL,self.BL) # 256 = multiple of 32
         
         # the following properties have no use in this engine
-        # they are (for now) need for compatibility with first-generation code
+        # they are (for now) needed for compatibility with first-generation code
         self.Npick = 1
         self.Navg = 1
         self.Ndrop = 0

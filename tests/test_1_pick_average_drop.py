@@ -9,11 +9,11 @@ import matplotlib.pyplot as plt
 # to enable these test scripts to be run independently from pytest
 # for example using spyder
 try:
-    from ddm_toolkit import ImageStructureEngine
+    from ddm_toolkit.ddm import ImageStructureEngine
 except:
     import sys
     sys.path.append('./..')
-    from ddm_toolkit import ImageStructureEngine
+    from ddm_toolkit.ddm import ImageStructureEngine
 
 try:
     from datafile import get_datafilename
