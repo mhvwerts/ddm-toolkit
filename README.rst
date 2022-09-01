@@ -132,6 +132,7 @@ Other DDM codes
 
 There are several other DDM codes available. Our DDM toolkit aims to be a standardized package for use internally in our lab. It aims also to provide a simple Python-based, generic, extensible toolkit that can be used for testing, benchmarking and comparing different approaches.
 
+- `DDMSoft (Python)`_ by F. Dux 
 - `PyDDM (Python)`_ by McGorty et al.
 - `openddm (Python)`_ by Koenderink Lab
 - `cddm (Python)`_ by Petelin and Arko (documented toolkit, also for cross-DDM)
@@ -141,6 +142,7 @@ There are several other DDM codes available. Our DDM toolkit aims to be a standa
 - `DDMcalc (Matlab)`_ by Helgeson et al.
 - `ConDDM (C++ source)`_ by Lu et al. (for confocal DDM, CUDA, 2012)
 
+.. _DDMSoft (Python): https://github.com/duxfrederic/ddmsoft
 .. _PyDDM (Python): https://github.com/rmcgorty/PyDDM
 .. _openddm (Python): https://github.com/koenderinklab/ddmPilotCode
 .. _cddm (Python): https://github.com/IJSComplexMatter/cddm
