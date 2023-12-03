@@ -88,14 +88,9 @@ Typically, dx=dy
 tifffile
 ========
 
-If `Christoph Gohlke's 'tifffile'`_ Python package has been installed, ``ddm-toolkit`` will use that version, because it is likely the more recent version. (Our tip: use conda + Conda-forge for installing packages).
+`Christoph Gohlke's 'tifffile'`_ Python package is required by DDM Toolkit for
+processing TIFF files. It is available, e.g., in the Conda-forge repository.
 
 .. _Christoph Gohlke's 'tifffile': https://github.com/cgohlke/tifffile
-
-``ddm-toolkit`` includes a copy of a legacy version of ``tifffile``, that will be used if a system ``tifffile`` is not available. See: `https://github.com/mhvwerts/tifffile`_
-
-.. _https://github.com/mhvwerts/tifffile: https://github.com/mhvwerts/tifffile
-
-In certain cases, a huge speed-up for decoding TIFF using the legacy ``tifffile`` is obtained by including a compiled C function. In order to compile it in your favorite environment, go to ``./ddm_toolkit/misc/tifffile_fork/`` and run ``python build_c.py build_ext --inplace``. This will generate a compiled binary module that is used by ``tifffile`` to speed up TIFF decoding.
 
 
