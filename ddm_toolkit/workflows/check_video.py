@@ -7,7 +7,53 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from tifffile import TiffFile
 from ddm_toolkit import tqdm
+
+
+
+
+
+
+FRAMERELDEVIATIONLIMIT = 0.005 # more than 0.5% deviation in dt is deemed unacceptable
+
+def check_ximea_tiff_fps(fpn):
+    """
+    Check frame rate of Ximea TIFF stack
+    
+    Uses the camera timestamps for each frame.
+
+    Parameters
+    ----------
+    fpn : str or Path
+        File pathname of source TIFF file.
+
+    Returns
+    -------
+    fps : float or None
+        Frame rate (fps) of source video. Returns None if an unacceptable
+        deviation in frameperiod is detected in the video.
+
+    """
+    with TiffFile(fpn) as tf:
+        Nfrm = len(tf.pages)
+        frm_t = np.zeros(Nfrm)
+        for ix, pg in enumerate(tf.pages):
+            frm_t[ix] = int(pg.tags['PageName'].value)*1e-6
+    dt = frm_t[1:] - frm_t[0:-1]
+    dtmin = dt.min()
+    dtmax = dt.max()
+    dtmean = dt.mean()
+    # abs not strictly necessary, but just in case...
+    mindev = abs((dtmean-dtmin)/dtmean)
+    maxdev = abs((dtmax-dtmean)/dtmean)
+    if (mindev > FRAMERELDEVIATIONLIMIT) or (maxdev > FRAMERELDEVIATIONLIMIT):
+        fps = None
+    else:
+        fps = Nfrm/(frm_t[-1]-frm_t[0])
+    return fps
+
+
 
 
 class check_videoROI_result:

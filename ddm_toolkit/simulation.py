@@ -55,7 +55,7 @@ PRNG = Generator(PCG64())
 
 
 ###############################################
-# SECTION: Fundamental Brownian simulation code
+# SECTION: Fundamental Brownian simulation codes
 ###############################################
 
 def random_coordinates(Np, d):
@@ -115,47 +115,68 @@ def brownian_softbox(r0, Nt, dt, D, bl):
                     r[i,j]=r[i,j-1]
     return r
 
-def browian_flow_periodic(r0, Nt, dt, D, bl, v, phi_0, flag):
-    '''Generate time-sequences of 1D Brownian particles trajectories in flow.
 
-    Generates time-sequences of 1D Brownian particles in flow trajectories of Np
-    particles in a box with 'soft' boundaries, starting from
-    the initial coordinate of the particles that are supplied
+################################
+# new-generation Brownian simulation code for periodic box
+#
+##################################
+
+# might be sped up using Numba
+def RunBrownPeriodicBox(ptrack,
+                     norm_noise,
+                     D,
+                     dt,
+                     boxsize):
+    """
+    Integrate Brownian equation for simple N-dimensional Brownian motion
 
     Parameters
     ----------
-    r0 : np.array
-        1D array containing the initial coordinate for each particle
-    '''
-    # get number of particles from generated array
-    Np = r0.shape[0]
+    ptrack : numpy array ('particle_tracks')
+        Predefined 3-dimensional array for storing particle positions
+        as a function of time.
+            ptrack[particle_ix, time_ix, coordinate_ix]
+        The shape of this array determines the size of the simulation:
+            (Nparticles, Ntimesteps, Ndimensions)
+        The first timestep [:, 0, :] should contain the initial positions
+        
+    norm_noise : numpy array
+        Array of dimension (Nparticles, Ntimesteps-1, Ndimensions) that
+        contains a normally distributed variable average 0
+    D : float
+        Diffusion coefficient.
+    dt : float
+        Time step size.
+    boxsize : list, tuple or array of floats with Ndimensions elements
+        size of the box in each dimension .
 
-    #
-    r = np.zeros((Np,Nt)) # Initialise particle position over time array
-    r[:,0] = r0 # Set initial position to the particlte position over time array
-    phi = np.ones(Np)*phi_0  # Initialise flow orientation  array
+    Returns
+    -------
+    None.
 
-    if flag == 'x' :
-        # Solve Langevin Equation via FDM
-        for k in range(1,Nt):
-            # Generate x-random gaussian noise
-            eta_r =  np.random.normal(loc=0, scale=1 ,size=Np)
-            # FDM numerical scheme
-            r[:,k] = r[:,k-1] + v*dt*np.cos(phi) + np.sqrt(2*D*dt)*eta_r
+    """
+    Npart, Ntime, Ndims = ptrack.shape
+    delta = np.sqrt(2*D)
+    
+    for ipart in range(Npart):
+        for itime in range(Ntime-1):
+            for idim in range(Ndims):
+                dx = delta*np.sqrt(dt)*norm_noise[ipart, itime, idim]
+                if abs(dx) > boxsize[idim]: # may happen in extremely rare cases?
+                    dx = 0.0 # ignore (perhaps keep track of how many times this happens)
+                ptrack[ipart, itime+1, idim] = \
+                    ptrack[ipart, itime, idim] \
+                    + dx
+                if ptrack[ipart, itime+1, idim] < 0.0:
+                    ptrack[ipart, itime+1, idim] += boxsize[idim]
+                elif ptrack[ipart, itime+1, idim] >= boxsize[idim]:
+                    ptrack[ipart, itime+1, idim] -= boxsize[idim]
+    
+    
+    
+    return
 
-    elif flag =='y':
-        # Solve Langevin Equation via FDM
-        for k in range(1,Nt):
-            # Generate x-random gaussian noise
-            eta_r =  np.random.normal(loc=0, scale=1 ,size=Np)
-            # FDM numerical scheme
-            r[:,k] = r[:,k-1] + v*dt*np.sin(phi) + np.sqrt(2*D*dt)*eta_r
 
-    # Apply periodic BCs
-    r[r[:,k] > bl,k] = 0
-    r[r[:,k] < 0,k] = bl
-
-    return r
 
 
 
@@ -342,60 +363,50 @@ def imgsynth2(px, py, w, x0, y0, x1, y1,
 # SECTION: Simulation interface classes
 ####################################################
 
-class ParticleSim2DBrownian:
-    """Particle simulator class (2D Brownian motion)
+class ParticleSim2D:
+    """Particle simulator class (2D motion)
 
-    Takes DDMparameter object as input, generates particle trajectories
+    Parameters
+    ----------
+    ddmpars : DDMparameter object
+        Class instance containing simulation and analysis parameters.
+    x1 : numpy array, optional
+        Shape (Nparticles, Ntimesteps). Array containing the x-coordinates of
+        the particles for each time step. If not provided, the standard 2D
+        Brownian Softbox simulation will be done.
+    y1 : numpy array, optional
+        Shape (Nparticles, Ntimesteps). Array containing the y-coordinates of
+        the particles for each time step. If not provided, the standard 2D
+        Brownian Softbox simulation will be done.
 
-    Properties
+    Returns
+    -------
+    None.
 
-    x1, y1 (np.array) => x resp. y coordinates ()
 
     """
-    def __init__(self, ddmpars):
-
+    def __init__(self, ddmpars, x1 = None, y1 = None):
         # store reference to all parameters
         self.ddmpars = ddmpars
 
-        #set initial particle coordinates
-        x0 = random_coordinates(ddmpars.sim_Np, ddmpars.sim_bl)
-        y0 = random_coordinates(ddmpars.sim_Np, ddmpars.sim_bl)
-
-        try:
-            if ddmpars.sim_v is None:
-                add_velocity_field = False
-            else:
-                add_velocity_field = True
-        except AttributeError:
-            add_velocity_field = False
-        
-        if (not add_velocity_field):
+        if (x1 is None):
+            #set initial particle coordinates
+            x0 = random_coordinates(ddmpars.sim_Np, ddmpars.sim_bl)
             #create array of coordinates of the particles at different timesteps
             self.x1 = brownian_softbox(x0, ddmpars.sim_Nt, ddmpars.sim_dt,
                                            ddmpars.sim_D, ddmpars.sim_bl)
+        else:
+            self.x1 = x1
+
+        if (y1 is None):
+            #set initial particle coordinates
+            y0 = random_coordinates(ddmpars.sim_Np, ddmpars.sim_bl)
+            #create array of coordinates of the particles at different timesteps
             self.y1 = brownian_softbox(y0, ddmpars.sim_Nt, ddmpars.sim_dt,
                                            ddmpars.sim_D, ddmpars.sim_bl)
-        else :
-            #create array of coordinates of the particles at different timesteps
-            # including a flow velocity term with a direction
-            #
-            #TODO: this type of simulation with flow should in a class of its own
-            # This new class can inherit from ParticleSim2DBrownian
-            # e.g.
-            # class ParticleSim2DBrownian_with_flow(ParticleSim2DBrownian)
-            #   subsequently this new class can overload __init__
-            #
-            #
-            self.x1 = browian_flow_periodic(x0, ddmpars.sim_Nt, ddmpars.sim_dt,
-                                            ddmpars.sim_D,
-                                            ddmpars.sim_bl,ddmpars.sim_v,
-                                            ddmpars.sim_phi_0,
-                                            'x')
-            self.y1 = browian_flow_periodic(y0, ddmpars.sim_Nt, ddmpars.sim_dt,
-                                            ddmpars.sim_D, 
-                                            ddmpars.sim_bl,
-                                            ddmpars.sim_v,ddmpars.sim_phi_0,
-                                            'y')
+        else:
+            self.y1 = y1
+
 
     def get_coordinates2D(self, ix):
         """return particle coordinates at frame(time) index ix
@@ -405,6 +416,7 @@ class ParticleSim2DBrownian:
         a tuple x, y of vectors containing sim_Npart coordinates
         """
         return (self.x1[:,ix], self.y1[:,ix])
+
 
     def stream_coordinates2D(self):
         """iterator: streams particle coordinates, one time-step at a time
@@ -490,3 +502,7 @@ class ImageSynthesizer2D:
     def stream_frames(self):
         for x, y in self.coordstream:
             yield self.make_imgframe(x, y)
+
+
+
+

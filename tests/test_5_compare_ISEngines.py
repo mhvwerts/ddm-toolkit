@@ -22,7 +22,18 @@ import pytest
 # import numpy as np
 # import matplotlib.pyplot as plt
 
-import ddm_toolkit
+
+# somewhat clumsy try...except imports
+# to enable these test scripts to be run independently from pytest
+# for example using spyder
+try:
+    import ddm_toolkit
+except:
+    import sys
+    sys.path.append('./..')
+    import ddm_toolkit
+
+
 from ddm_toolkit.ddm import best_available_engine_model
 from ddm_toolkit.ddm import available_engine_models
 from ddm_toolkit.params import DDMParams

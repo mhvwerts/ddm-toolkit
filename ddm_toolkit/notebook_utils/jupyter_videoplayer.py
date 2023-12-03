@@ -133,9 +133,7 @@ class VideoPlayerUI:
             self.playvideothread.start()
             
     def _on_button2_clicked(self, b):
-        self.videoplaying = False
-        self.playvideothread.join()
-        self.frameslide.disabled = not self.framestrm.random_access
+        self.stop_videoplayer()
         
     def _on_set_vmin(self, change):
         self.framestrm.vmin = change['new']
@@ -179,3 +177,12 @@ class VideoPlayerUI:
     def showUIbox(self):
         self.updateUIparameters()
         display(self.UIbox)
+        
+    def stop_videoplayer(self):
+        self.videoplaying = False
+        try:
+            self.playvideothread.join()
+        except RuntimeError:
+            pass # If thread  not running, it cannot be joined. Do nothing.
+        self.frameslide.disabled = not self.framestrm.random_access
+        

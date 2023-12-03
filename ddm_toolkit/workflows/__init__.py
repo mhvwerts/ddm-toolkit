@@ -8,6 +8,7 @@ from .video3_calculate_ISF import video3_calculate_ISF
 from .compare_all_ImageStructureEngines import compare_all_ImageStructureEngines
 
 from .check_video import check_videoROI
+from .check_video import check_ximea_tiff_fps
 from .calculate_ISF import calculate_ISF
 
 

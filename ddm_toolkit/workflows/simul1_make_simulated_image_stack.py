@@ -1,7 +1,7 @@
 import numpy as np
 
 from ddm_toolkit import tqdm
-from ddm_toolkit.simulation import ParticleSim2DBrownian
+from ddm_toolkit.simulation import ParticleSim2D
 from ddm_toolkit.simulation import ImageSynthesizer2D
 
 
@@ -21,7 +21,7 @@ def simul1_make_simulated_image_stack(dparams):
         stack of synthetic video frames.
 
     """
-    psimul = ParticleSim2DBrownian(dparams)
+    psimul = ParticleSim2D(dparams)
     imgsynthez = ImageSynthesizer2D(psimul)
     Nframes = dparams.sim_Nt
     Npx = dparams.sim_img_Npx
