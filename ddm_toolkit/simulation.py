@@ -9,32 +9,49 @@ simulation.py:
 
 
 import numpy as np
-from numpy.random import Generator, PCG64
+from numpy.random import Generator, PCG64, MT19937
 from scipy.ndimage import gaussian_filter
 
 
 # Instantiate pseudo-random number generator (PRNG) for simulation/
 # The PRNG is module-global, so that only one instance is used
-# throughout the simulation code
+# throughout the simulation code.
 #
-# We might have used the well-known "Mersenne Twister" as provided
-# by numpy (MT19937), but we chose O’Neill’s "permuted
-# congruential generator" (PCG64). It is more recent (2014), and
-# reportedly has better statistical properties. MT19937 also gave
-# satisfactory results.
+# We chose the "Mersenne Twister" (MT19937) as provided by numpy.random and
+# used it with good results. The Mersenne Twister[1] is well known in the field 
+# of molecular and Brownian dyanmics.[2][3] We also used O’Neill’s more recent
+# "permuted congruential generator" (PCG64),[4][5][6] which is now the default
+# in numpy.random, and also works well for our Brownian simulations.
 #
-# Our use of PCG64 in simple Brownian simulations coupled to DDM analysis
-# is actually one way of testing this PRNG for application in
-# Brownian dynamic simulation, since the expected result is perfectly
-# known theoretically. (This assumes that the rest of the simulation program
-# is perfect as well!)
+# Our use of PCG64 and MT19937 (and potential other PRNGs if they become
+# available) in simple Brownian simulations coupled to DDM analysis
+# may actually be a way of testing these PRNGs for application in
+# Brownian dynamics simulations. The diffusion coefficient used in the
+# simulation should be recovered by the subsequent DDM analysis, if all steps
+# of the simulation-analysis chain work perfectly, incl. the random number
+# generation.
 #
 #
 # Bibliographic references:
 #
-# [1] @techreport{oneill:pcg2014,
-#       title = "PCG: A Family of Simple Fast Space-Efficient Statistically Good
-#                Algorithms for Random Number Generation",
+# [1] Matsumoto, Makoto, and Takuji Nishimura. "Mersenne Twister: A
+#     623-Dimensionally Equidistributed Uniform Pseudo-Random Number
+#     Generator." ACM Transactions on Modeling and Computer Simulation 1998, 8,
+#     3-30. https://doi.org/10.1145/272991.272995 
+#
+# [2] Click, T. H.; Liu, A.; Kaminski, G. A. "Quality of Random Number
+#     Generators Significantly Affects Results of Monte Carlo Simulations for
+#     Organic and Biological Systems. J Comput Chem 2011, 32, 513–524.
+#     https://doi.org/10.1002/jcc.21638 
+#
+# [3] Okada, K.; Brumby, P. E.; Yasuoka, K. "The Influence of Random Number
+#     Generation in Dissipative Particle Dynamics Simulations Using a
+#     Cryptographic Hash Function". PLoS ONE 2021, 16, e0250593.
+#     https://doi.org/10.1371/journal.pone.0250593
+#
+# [4] @techreport{oneill:pcg2014,
+#       title = "PCG: A Family of Simple Fast Space-Efficient Statistically
+#                Good Algorithms for Random Number Generation",
 #       author = "Melissa E. O'Neill",
 #       institution = "Harvey Mudd College",
 #       address = "Claremont, CA",
@@ -44,14 +61,18 @@ from scipy.ndimage import gaussian_filter
 #       xurl = "https://www.cs.hmc.edu/tr/hmc-cs-2014-0905.pdf",
 #     }
 #
-# [2] https://www.pcg-random.org/posts/history-of-the-pcg-paper.html
-#
-# [3] Bouillaguet, C.; Martinez, F.; Sauvage, J. "Predicting the PCG Pseudo-Random
-#     Number Generator In Practice." hal-02700791 (2020).
+# [5] Bouillaguet, C.; Martinez, F.; Sauvage, J. "Predicting the PCG
+#     Pseudo-Random Number Generator In Practice." hal-02700791 (2020).
 #     https://hal.archives-ouvertes.fr/hal-02700791
+#
+# [6] Bouillaguet, C.; Martinez, F.; Sauvage, J. "Practical Seed-Recovery for
+#     the PCG Pseudo-Random Number Generator. ToSC 2020, 175–196.
+#     https://dx.doi.org/10.46586/tosc.v2020.i3.175-196
 
 
-PRNG = Generator(PCG64())
+
+# PRNG = Generator(PCG64()) 
+PRNG = Generator(MT19937())
 
 
 ###############################################
