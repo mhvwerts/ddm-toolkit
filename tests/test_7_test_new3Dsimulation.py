@@ -10,6 +10,8 @@ in ddm_toolkit.simulation
 #### 
 
 
+import os.path
+
 import pytest
 
 from tqdm import tqdm
@@ -76,7 +78,8 @@ params.update_simulation_parameters()
 # 3D brownian simulation
 ##############################
 
-print("performing 3D brownian simulation...")
+print()
+print("Performing 3D brownian simulation...")
 
 # initialize simulation parameters
 Npart = params.sim_Np
@@ -89,12 +92,45 @@ dt = params.sim_T / params.sim_Nt
 # set up the storage for all particle coordinates
 ptrack = np.zeros((Npart, Ntime, Ndim))
 
+
+print("    - Uniformly distribute particles using internal random generator...")
 # initial condition (evenly distributed particles)
 for idim in range(Ndim):
     ptrack[:, 0, idim] =  PRNG.random(Npart) * boxsize[idim]
 
-# normally distributed noise
-norm_noise = PRNG.normal(size = (Npart, Ntime-1, Ndim))
+
+print("    - Obtaining normally distributed random numbers...")
+
+# read normal random variable from file
+norran = None
+if os.path.exists('datafiles'):
+    print('        + Found datafiles subdir in current dir')
+    fname = 'datafiles/normalrandoms.bin'
+else:
+    print('        + No datafiles subdir in current dir')
+    fname = '../datafiles/normalrandoms.bin'
+if os.path.isfile(fname):
+    print("        + Found 'normalrandoms.bin' data file! Loading...")
+    with open(fname, "rb") as f:
+        norran = np.fromfile(f, dtype=np.float64) 
+else:
+    print('        + No random number file found.')
+
+
+if norran is None:
+    # normally distributed noise
+    print('        = Generate random numbers using numpy...')
+    norm_noise = PRNG.normal(size = (Npart, Ntime-1, Ndim))
+else:
+    Navail = len(norran)
+    Nneed = Npart * (Ntime-1) * Ndim
+    imax = Navail-Nneed
+    iget = PRNG.integers(0,imax,endpoint=True)
+    print(f'        = Get {Nneed} random numbers from file...')
+    norm_noise = norran[iget:iget+Nneed].reshape((Npart, Ntime-1, Ndim))
+
+
+
 
 # run the actual simulation
 RunBrownPeriodicBox(ptrack, norm_noise, D, dt, boxsize)
@@ -124,7 +160,8 @@ psimul = ParticleSim2D(params,
 ###########################
 # image synthesis (code from 'simul1_make_simulated_image_stack.py')
 #############################
-print("creating simulated image stack...")
+print()
+print("Creating simulated image stack...")
 imgsynthez = ImageSynthesizer2D(psimul)
 Nframes = params.sim_Nt
 Npx = params.sim_img_Npx
@@ -135,8 +172,8 @@ for ix in tqdm(range(Nframes)):
     ims[ix,:,:] = img
 
 
-print("")
-print('')
+print()
+print("DDM analysis...")
 
 ##################################
 # DDM analysis of simulated image stack
@@ -165,6 +202,7 @@ ISF1.real_world(params.um_p_pix, params.s_p_frame)
 # DO FIT
 result = ISFanalysis_simple_brownian(ISF1, params.initial_guess_D)
 
+print()
 result.print_report()
 
 print('')

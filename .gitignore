@@ -6,6 +6,8 @@ local/
 private/
 package*/
 /datafiles/*
+*.bin
+*.exe
 *.bak
 *.zip
 *.npz
