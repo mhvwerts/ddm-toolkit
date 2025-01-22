@@ -1,7 +1,4 @@
 #%%
-import sys
-sys.path.insert(1, '/Users/lancelotbarthe/GitHub/ddm-toolkit-beta-III')
-
 #
 import pickle
 import numpy as np

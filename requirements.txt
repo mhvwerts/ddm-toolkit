@@ -12,3 +12,4 @@ jupyterlab
 ipywidgets
 h5py
 xarray
+pytest
