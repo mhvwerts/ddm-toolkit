@@ -5,9 +5,9 @@
 
 ## Introduction
 
-Dynamic differential microscopy (DDM) is a digital video-microscopic technique for studying the dynamics of microscopic systems, such as small, Brownian particles in a liquid. See, *e.g.*,: \[1\] Cerbino and Trappe, *Phys. Rev. Lett.* **2008**, *100*, 188102; \[2\] Giavazzi et al. *Phys. Rev. E* **2009**, *80*, 031403; \[3\] Germain et al. *Am. J. Phys.* **2016**, *84*, 202.
+Dynamic differential microscopy (DDM) is a digital video-microscopic technique for studying the dynamics of microscopic systems, such as small, Brownian particles in a liquid. See, *e.g.*,: \[1\] Cerbino and Trappe, *Phys. Rev. Lett.* **2008**, *100*, 188102; \[2\] Giavazzi et al. *Phys. Rev. E* **2009**, *80*, 031403; \[3\] Germain et al. *Am. J. Phys.* **2016**, *84*, 202. DDM relies on numerical processing of videomicroscopy image sequences using specific computer code. In our lab, we are exploring DDM for nanoparticle characterization in microfluidics.
 
-DDM relies on numerical processing of videomicroscopy image sequences using specific computer code.In our lab, we are exploring DDM for nanoparticle characterization in microfluidics. This Github repository centralizes the contributions made to our lab's DDM Python code by the students and investigators who participate in this research. The aim is to constitute a standardized toolkit that students and colleagues can download and use for DDM. At present, the toolkit is in a preliminary and sparsely documented state. Do not hesitate to contact us if you are interested in using it and helping develop it further.
+This Github repository centralizes the contributions made to our lab's DDM Python code by the students and investigators who participate in this research. The aim is to constitute a standardized toolkit that students and colleagues can download and use for DDM. At present, the toolkit is in a preliminary and sparsely documented state. Do not hesitate to contact us if you are interested in using it and helping develop it further.
 
 Our DDM toolkit has several specific original features:
 
