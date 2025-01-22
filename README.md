@@ -127,11 +127,11 @@ A rudimentary code testing infrastructure is in place, using [pytest](https://do
 
 ### Working towards documentation using Sphinx
 
-For the future, we intend to use [Sphinx](https://www.sphinx-doc.org) for creating the documentation.
+For future documentation, we intend to use [Sphinx](https://www.sphinx-doc.org).
 
-The `doc\` folder was initialized using `sphinx-quickstart`. Therefore, it is easy to build the documentation.
+The `doc\` folder was initialized using `sphinx-quickstart`.
 
-From within the `doc\` folder, run the following:
+To build documentation, run the following from within the `doc\` folder:
 
 ``` 
 make html
