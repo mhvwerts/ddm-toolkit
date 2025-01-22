@@ -27,7 +27,9 @@ There is no specific installable package yet for this toolkit, and it does not n
 
 The toolkit requires Python 3.8 or higher, and needs `numpy`, `scipy`, `matplotlib`. It also needs `numba` (`conda install numba`). Furthermore, it uses [PyAV](https://pyav.org/docs) (`conda install av`) and [Pillow](https://pillow.readthedocs.io/) (`conda install pillow`). We also recommend that you install [C. Gohlke's tifffile](https://github.com/cgohlke/tifffile) (`conda install tifffile`) and the latest version of [tqdm](https://tqdm.github.io/). (`conda install tqdm`).
 
-
+```
+conda create --name ddm_env --file requirements.txt
+```
 
 ## Basic usage
 
