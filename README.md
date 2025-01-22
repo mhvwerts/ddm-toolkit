@@ -86,9 +86,6 @@ python simul1_simulate_synthesize.py simul0_params_example.txt
 Execution of this sequence of CLI scripts is a basic way of testing the code base.
 
 
-
-
-
 ## Other DDM codes
 
 There are several other DDM codes available. Our DDM toolkit aims to be a standardized package for use internally in our lab. It aims also to provide a simple Python-based, generic, extensible toolkit that can be used for testing, benchmarking and comparing different approaches.
@@ -100,7 +97,6 @@ There are several other DDM codes available. Our DDM toolkit aims to be a standa
 - [diffmicro (C++/CUDA)](https://github.com/giovanni-cerchiari/diffmicro) by Cerchiari et al. (fast DDM algorithms with/without GPU)
 - [quickDDM (Python)](https://github.com/CSymes/quickDDM) by Symes and Penington (GPU acceleration)
 - [DDM (Matlab; Python notebook)](https://github.com/MathieuLeocmach/DDM) by Germain, Leocmach, Gibaud
-- [DDMcalc (Matlab)](https://sites.engineering.ucsb.edu/~helgeson/ddm.html) by Helgeson et al.
 - [ConDDM (C++ source)](https://github.com/peterlu/ConDDM) by Lu et al. (for confocal DDM, CUDA, 2012)
 
 
