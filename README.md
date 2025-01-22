@@ -25,11 +25,9 @@ There is no specific installable package yet for this toolkit, and it does not n
 
 ### Requirements and dependencies
 
-The toolkit requires Python 3.8 or higher, and needs `numpy`, `scipy`, `matplotlib`. It also needs `numba` (`conda install numba`). Furthermore, it uses [PyAV](https://pyav.org/docs) (`conda install av`) and [Pillow](https://pillow.readthedocs.io/) (`conda install pillow`). We also recommend that you install [C. Gohlke's tifffile](https://github.com/cgohlke/tifffile) (`conda install tifffile`) and the latest version of [tqdm](https://tqdm.github.io/). (`conda install tqdm`).
+The toolkit requires Python 3.12, and needs `numpy` (v2.x.x), `scipy`, `matplotlib`. It also needs `numba` (`conda install numba`). Furthermore, it uses [PyAV](https://pyav.org/docs) (`conda install av`) and [Pillow](https://pillow.readthedocs.io/) (`conda install pillow`). We also recommend that you install [C. Gohlke's tifffile](https://github.com/cgohlke/tifffile) (`conda install tifffile`) and the latest version of [tqdm](https://tqdm.github.io/). (`conda install tqdm`).
 
-```
-conda create --name ddm_env --file requirements.txt
-```
+
 
 ## Basic usage
 
@@ -129,7 +127,7 @@ A rudimentary code testing infrastructure is in place, using [pytest](https://do
 
 ### Working towards documentation using Sphinx
 
-We intend to use [Sphinx](https://www.sphinx-doc.org) for creating the documentation.
+For the future, we intend to use [Sphinx](https://www.sphinx-doc.org) for creating the documentation.
 
 The `doc\` folder was initialized using `sphinx-quickstart`. Therefore, it is easy to build the documentation.
 
