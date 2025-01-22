@@ -1,4 +1,14 @@
-numpy
+python=3.12
+numpy>=2.0.2
 scipy
+numba
+matplotlib
 tifffile
+av
+pillow
 tqdm
+spyder
+jupyterlab
+ipywidgets
+h5py
+xarray
