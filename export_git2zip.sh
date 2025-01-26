@@ -1,2 +1,2 @@
-git archive --prefix=ddmtoolkit_latest/ --format=zip --output ddmtoolkitbeta3_latest.zip HEAD
+git archive --prefix=ddmtoolkit_latest/ --format=zip --output ddmtoolkit_latest.zip HEAD
 
