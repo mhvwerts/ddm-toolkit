@@ -36,7 +36,8 @@ class FrameStreamerBasic:
         
         (for passing to Image Widget)
         """
-        # apply contrast/brightness (via vmin, vmax) and generate 256 grayscale image 'abuf'
+        # apply contrast/brightness (via vmin, vmax) and generate 256 grayscale 
+        # image 'abuf'
         if self.vmin == self.vmax: # avoid division by zero
             self.abuf[:,:] = self.intscale - 1
         else:
@@ -64,16 +65,17 @@ class FrameStreamerBasic:
         return imgbytes
     
     def next_frame(self, return_ROI=False):
-        self.framedata = self._get_next_framedata(self.frameix)
-        self.frameix += 1
         if self.frameix >= self.Nframes:
             # self.frameix = 0 # do not cycle around anymore, simulate finite source
             outdata = None # output None if last frame reached
-        elif return_ROI:
-            outdata = self.framedata[self.ROI_iy:self.ROI_iy+self.ROI_iw,
-                                     self.ROI_ix:self.ROI_ix+self.ROI_iw]    
         else:
-            outdata = self.framedata
+            self.framedata = self._get_next_framedata(self.frameix)
+            self.frameix += 1
+            if return_ROI:
+                outdata = self.framedata[self.ROI_iy:self.ROI_iy+self.ROI_iw,
+                                         self.ROI_ix:self.ROI_ix+self.ROI_iw]    
+            else:
+                outdata = self.framedata
         return outdata
     
     def _get_next_framedata(self, ix):
@@ -96,6 +98,32 @@ class FrameStreamerBasic:
         else:
             self.frameix = 0
      
+
+
+class FrameStreamer_ndarray(FrameStreamerBasic):
+    """Stream frames from a numpy array
+    
+    The numpy array is organized as follows
+        arr[ti, xi, yi]
+    such that
+        arr[ti, :, :]
+    is a single monochrome frame
+    """
+    def __init__(self, arr, **kwargs):
+        self.arr = arr
+        self.frameshape = arr.shape[1:]
+        self.globalmax = arr.max()
+        self.globalmin = arr.min()
+        super().__init__(self.frameshape, **kwargs)
+        self.Nframes = arr.shape[0]
+        self.random_access = True
+        self.vmin = self.globalmin
+        self.vmax = self.globalmax  
+        
+    def _get_next_framedata(self, ti):
+        imagedata = self.arr[ti, :, :]
+        return imagedata
+
 
 
 class FrameStreamerTIFF(FrameStreamerBasic):

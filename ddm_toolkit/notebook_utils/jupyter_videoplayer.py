@@ -163,11 +163,16 @@ class VideoPlayerUI:
         
     def _playvideo(self):
         while self.videoplaying:
-            self.framestrm.next_frame()
-            #player.framedata = np.random.normal(size=player.viewport)
-            self.imgwdg.value = self.framestrm.imgbytes()
-            self.frameslide.value = self.framestrm.frameix
-            sleep(self.playvideosleeptime)
+            framedata = self.framestrm.next_frame()
+            if framedata is None: 
+                # If framestreamser serves 'None'
+                # it is at the end of the video or otherwise
+                # unable to play back. Stop video player.
+                self.stop_videoplayer()
+            else:
+                self.imgwdg.value = self.framestrm.imgbytes()
+                self.frameslide.value = self.framestrm.frameix
+                sleep(self.playvideosleeptime)
     
     def updateUIparameters(self):
         self.wdgROIsize.value = self.framestrm.ROI_iw
