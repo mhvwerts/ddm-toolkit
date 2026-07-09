@@ -1,0 +1,53 @@
+# minimalist pyproject.toml
+
+[project]
+name = "ddm_toolkit"
+version = "0.2.1"
+authors = [
+    { name="Martinus H. V. Werts", email="martinus.werts@univ-angers.fr"}
+]
+description = "Python toolkit for Differential Dynamic Microscopy"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: CEA CNRS Inria Logiciel Libre License, version 2.1 (CeCILL-2.1)",
+    "Operating System :: OS Independent",
+    "Development Status :: Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Chemistry"
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+        "numpy",
+        "scipy",
+		"matplotlib",
+		"numba",
+		"tifffile",
+		"av",
+		"pillow",
+		"tqdm",
+		"h5py",
+		"xarray"
+        ]
+
+[project.urls]
+"Homepage" = "https://github.com/mhvwerts/ddm-toolkit"
+"Bug Tracker" = "https://github.com/mhvwerts/ddm-toolkit/issues"
+
+[build-system]
+requires = ["setuptools>=61.0", 
+		"numpy",
+        "scipy",
+		"matplotlib",
+		"numba",
+		"tifffile",
+		"av",
+		"pillow",
+		"tqdm",
+		"h5py",
+		"xarray",
+		"pytest"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

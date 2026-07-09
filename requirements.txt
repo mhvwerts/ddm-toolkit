@@ -1,15 +1,16 @@
-python>=3.12.1, <3.13
+python>=3.12.1
 numpy>=2.0.2
 scipy
-numba
 matplotlib
+numba
 tifffile
 av
 pillow
 tqdm
-spyder
-jupyterlab
-ipywidgets
 h5py
 xarray
 pytest
+spyder
+jupyterlab
+ipywidgets
+
