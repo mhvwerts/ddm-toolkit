@@ -1,5 +1,8 @@
 # Some details
 
+This document contains random notes, some of which are likely to become obsolete.
+
+
 ## ImageStructureEngine
 
 ### Pre-processing: Picking, averaging, dropping
