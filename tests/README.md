@@ -8,11 +8,8 @@ Currently, unit testing is incomplete, but it will likely detect new changes to 
 
 ## How to test
 
-You should run `pytest` from the project root directory. This runs all tests. You can run `pytest` on specific tests by invoking `pytest tests/test_<name-of-the-test>.py`
+You should run `pytest -s` from the project root directory. This runs all tests. You can run `pytest` on specific tests by invoking `pytest tests/test_<name-of-the-test>.py`
 
-Before doing `pytest`, you may also directly run the `tests/test_<name-of-the-test>.py` script in Python using `python -m tests.test_<name-of-the-test>` (without the `.py` extension) so that you can inspect the console output before applying the `pytest`.
-
-All tests are best run from the project's root directory (*i.e.*, have this root directory as the current working directory). Running the script from within the `tests` directory may not work (problems with importing modules). Some tests, however, can be run with `tests` as the working directory so that they can be edited and run using Spyder (these have a work-around for the import problem).
 
 ## TO DO
 
