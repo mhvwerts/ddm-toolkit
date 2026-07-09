@@ -1,4 +1,12 @@
+# Full development environment for ddm_toolkit (conda)
+# Mirrors [project.dependencies] + [project.optional-dependencies.dev]
+# in pyproject.toml. Keep in sync with that file.
+#
+# Usage: conda create --name ddm_toolkit_env --file requirements.txt
+
 python>=3.12.1
+
+# core runtime dependencies (== pyproject.toml [project.dependencies])
 numpy>=2.0.2
 scipy
 matplotlib
@@ -9,8 +17,9 @@ pillow
 tqdm
 h5py
 xarray
+
+# dev/interactive tools (== pyproject.toml [project.optional-dependencies].dev)
 pytest
 spyder
 jupyterlab
 ipywidgets
-

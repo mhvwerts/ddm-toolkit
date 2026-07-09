@@ -61,7 +61,7 @@ For more extensive use of the toolkit, and interactive editing of the source cod
 ```bash
 conda create --name ddm_toolkit_env --file requirements.txt
 conda activate ddm_toolkit_env
-pip install -e .
+pip install -e .[dev]
 ```
 
 (Do not forget the trailing dot of the `pip` incantation).

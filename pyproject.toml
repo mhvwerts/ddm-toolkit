@@ -11,23 +11,31 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: CEA CNRS Inria Logiciel Libre License, version 2.1 (CeCILL-2.1)",
     "Operating System :: OS Independent",
-    "Development Status :: Beta",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Chemistry"
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12.1"
 dependencies = [
-        "numpy",
+        "numpy>=2.0.2",
         "scipy",
-		"matplotlib",
-		"numba",
-		"tifffile",
-		"av",
-		"pillow",
-		"tqdm",
-		"h5py",
-		"xarray"
+        "matplotlib",
+        "numba",
+        "tifffile",
+        "av",
+        "pillow",
+        "tqdm",
+        "h5py",
+        "xarray"
+        ]
+
+[project.optional-dependencies]
+dev = [
+        "pytest",
+        "spyder",
+        "jupyterlab",
+        "ipywidgets"
         ]
 
 [project.urls]
@@ -35,18 +43,7 @@ dependencies = [
 "Bug Tracker" = "https://github.com/mhvwerts/ddm-toolkit/issues"
 
 [build-system]
-requires = ["setuptools>=61.0", 
-		"numpy",
-        "scipy",
-		"matplotlib",
-		"numba",
-		"tifffile",
-		"av",
-		"pillow",
-		"tqdm",
-		"h5py",
-		"xarray",
-		"pytest"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
