@@ -7,7 +7,6 @@
 
 Dynamic differential microscopy (DDM) is a digital video-microscopic technique for studying the dynamics of microscopic systems, such as small, Brownian particles in a liquid. See, *e.g.*,: \[1\] Cerbino and Trappe, *Phys. Rev. Lett.* **2008**, *100*, 188102; \[2\] Giavazzi et al. *Phys. Rev. E* **2009**, *80*, 031403; \[3\] Germain et al. *Am. J. Phys.* **2016**, *84*, 202. DDM relies on numerical processing of videomicroscopy image sequences using specific computer code. In our lab, we are exploring DDM for nanoparticle characterization in microfluidics.
 
-This Github repository centralizes the contributions made to our lab's DDM Python code by the students and investigators who participate in this research. The aim is to constitute a standardized toolkit that students and colleagues can download and use for DDM. At present, the toolkit is in a preliminary and sparsely documented state. Do not hesitate to contact us if you are interested in using it and helping develop it further.
 
 Our DDM toolkit has several specific original features:
 
@@ -16,22 +15,58 @@ Our DDM toolkit has several specific original features:
 - It includes basic Brownian simulation and video synthesis routines for generating idealized, artificial video-streams that can be used to test any specific DDM processing.
 - The combination of simulation and processing enables us to cross-check the correct implementation of both the simulation and the DDM analysis.
 
+This Github repository centralizes the contributions made to our lab's DDM Python code by the students and investigators who participate in this research. The aim is to constitute a standardized toolkit that students and colleagues can download and use for DDM. It can also contribute to testing, benchmarking and comparing different approaches in DDM.
+
+For the forseeable future, this toolkit will remain in an early development state. It is mainly intended for users who are already experienced with the DDM workflow, and also have basic knowledge on how to work with Python in a scientific research setting. People who are new to DDM will be better served by, *e.g.* [fastDDM](https://fastddm.readthedocs.io/, see the next section).
+
+
+
+## Other DDM codes
+
+There are several other open-source DDM codes available, each having a specific scope and being in a different stage of development.
+
+- [fastDDM (Python)](https://github.com/somexlab/fastddm) by the Cerbino group. It has good documentation, insightful tutorials, and an [accompanying paper](https://doi.org/10.1063/5.0289471).
+- [PyDDM (Python)](https://github.com/rmcgorty/PyDDM) by McGorty et al.
+- [DDMSoft (Python)](https://github.com/duxfrederic/ddmsoft) by F. Dux
+- [openddm (Python)](https://github.com/koenderinklab/ddmPilotCode) by Koenderink Lab
+- [cddm (Python)](https://github.com/IJSComplexMatter/cddm) by Petelin and Arko (documented toolkit, also for cross-DDM)
+- [diffmicro (C++/CUDA)](https://github.com/giovanni-cerchiari/diffmicro) by Cerchiari et al. (fast DDM algorithms with/without GPU)
+- [quickDDM (Python)](https://github.com/CSymes/quickDDM) by Symes and Penington (GPU acceleration)
+- [DDM (Matlab; Python notebook)](https://github.com/MathieuLeocmach/DDM) by Germain, Leocmach, Gibaud
+- [ConDDM (C++ source)](https://github.com/peterlu/ConDDM) by Lu et al. (for confocal DDM, CUDA, 2012)
+
+
+
 
 
 ## Installation
 
-There is no specific installable package yet for this toolkit, and it does not need separate installation. In order to use the toolkit, download this Github repository as a ZIP file (or 'clone' the repository) and unpack it in a separate folder on your computer. The scripts can be run from the command line using a suitable Python environment. We recommend Anaconda Miniconda3 with the [conda-forge](https://conda-forge.org/) channel.
+There is no specific installable package yet for this DDM toolkit. In order to simply use the toolkit, download this Github repository as a ZIP file (or 'clone' the repository) and unpack it in a separate folder on your computer. The scripts can be run from the command line using a suitable Python environment. We recommend Anaconda Miniconda3 with the [conda-forge](https://conda-forge.org/) channel.
 
 
 ### Requirements and dependencies
 
-The toolkit requires Python 3.12, and needs `numpy` (v2.x.x), `scipy`, `matplotlib`. It also needs `numba` (`conda install numba`). Furthermore, it uses [PyAV](https://pyav.org/docs) (`conda install av`) and [Pillow](https://pillow.readthedocs.io/) (`conda install pillow`). We also recommend that you install [C. Gohlke's tifffile](https://github.com/cgohlke/tifffile) (`conda install tifffile`) and the latest version of [tqdm](https://tqdm.github.io/). (`conda install tqdm`).
+The toolkit requires Python 3.12, and needs `numpy` (v2.x.x), `scipy`, `matplotlib`. It also needs `numba` (`conda install numba`). Furthermore, it uses [PyAV](https://pyav.org/docs) (`conda install av`) and [Pillow](https://pillow.readthedocs.io/) (`conda install pillow`). What also should be installed: [C. Gohlke's tifffile](https://github.com/cgohlke/tifffile) (`conda install tifffile`) and the latest version of [tqdm](https://tqdm.github.io/). (`conda install tqdm`).
 
 With conda (conda-forge channel), a suitable Python environment can be created with the following command.
 
+```bash
+conda create --name ddm_toolkit_env --file requirements.txt
 ```
-conda create --name ddm_env --file requirements.txt
+
+### Development installation
+
+For more extensive use of the toolkit, and interactive editing of the source code, use a local Git clone of the GitHub repository, and create an 'editable install' in a specific Conda environment. From within the root folder of the local Git repository, do:
+
+```bash
+conda create --name ddm_toolkit_env --file requirements.txt
+conda activate ddm_toolkit_env
+pip install -e .
 ```
+
+(Do not forget the trailing dot of the `pip` incantation).
+
+
 
 ## Basic usage
 
@@ -86,23 +121,11 @@ python simul1_simulate_synthesize.py simul0_params_example.txt
 Execution of this sequence of CLI scripts is a basic way of testing the code base.
 
 
-## Other DDM codes
-
-There are several other DDM codes available. Our DDM toolkit aims to be a standardized package for use internally in our lab. It aims also to provide a simple Python-based, generic, extensible toolkit that can be used for testing, benchmarking and comparing different approaches.
-
-- [DDMSoft (Python)](https://github.com/duxfrederic/ddmsoft) by F. Dux
-- [PyDDM (Python)](https://github.com/rmcgorty/PyDDM) by McGorty et al.
-- [openddm (Python)](https://github.com/koenderinklab/ddmPilotCode) by Koenderink Lab
-- [cddm (Python)](https://github.com/IJSComplexMatter/cddm) by Petelin and Arko (documented toolkit, also for cross-DDM)
-- [diffmicro (C++/CUDA)](https://github.com/giovanni-cerchiari/diffmicro) by Cerchiari et al. (fast DDM algorithms with/without GPU)
-- [quickDDM (Python)](https://github.com/CSymes/quickDDM) by Symes and Penington (GPU acceleration)
-- [DDM (Matlab; Python notebook)](https://github.com/MathieuLeocmach/DDM) by Germain, Leocmach, Gibaud
-- [ConDDM (C++ source)](https://github.com/peterlu/ConDDM) by Lu et al. (for confocal DDM, CUDA, 2012)
-
-
 ## Development
 
 This toolkit is being maintained Martinus Werts (CNRS and Université d'Angers, France). It contains contributions from Nitin Burman (IISER Mohali, India), Jai Kumar (IISER Bhopal, India), Greshma Babu (IISER Bhopal) and Ankit Lade (IISER Bhopal). Suzon Pucheu, Elias Abboubi and Pierre Galloo-Beauvais (ENS Rennes) did further stress testing and application to real videos. The students from IISER worked on DDM during their research projects at ENS Rennes in the context of the IISER-ENS exchange program.
+
+
 
 
 ### Vocabulary
@@ -123,25 +146,4 @@ An important way of testing scientific software is to use it on well-defined tes
 ### Code testing
 
 A rudimentary code testing infrastructure is in place, using [pytest](https://docs.pytest.org/en/stable/). See the [README file in the tests directory](./tests/README.rst) for further information
-
-
-### Working towards documentation using Sphinx
-
-For future documentation, we intend to use [Sphinx](https://www.sphinx-doc.org).
-
-The `doc\` folder was initialized using `sphinx-quickstart`.
-
-To build documentation, run the following from within the `doc\` folder:
-
-``` 
-make html
-```
-
-or:
-
-``` 
-make pdflatex
-```
-
-The generated documentation files can then be found in the local `doc\_build\` folder.
 
