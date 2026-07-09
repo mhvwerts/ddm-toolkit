@@ -127,11 +127,23 @@ class FrameStreamer_ndarray(FrameStreamerBasic):
 
 
 class FrameStreamerTIFF(FrameStreamerBasic):
-    def __init__(self, fname, **kwargs):
-        self.tf = TiffFile(fname)
+    def __init__(self, fname, colorchannel = None,
+                 **kwargs):
+        self.tf = TiffFile(fname, is_ome=True)
         page = self.tf.pages[0]
-        frm = page.asarray()
-        self.frameshape = page.shape
+        if (page.ndim == 3):
+            # colour video
+            if colorchannel is not None:
+                self.cchan = colorchannel
+            else:
+                raise ValueError('Please set a colorchannel for this color video.')
+        else:
+            self.cchan = None
+        if self.cchan is None:
+            frm = page.asarray()
+        else:
+            frm = page.asarray()[:, :, self.cchan]
+        self.frameshape = frm.shape
         self.globalmax = frm.max()
         self.globalmin = frm.min()
         super().__init__(self.frameshape, **kwargs)
@@ -141,7 +153,12 @@ class FrameStreamerTIFF(FrameStreamerBasic):
         self.vmax = self.globalmax
                     
     def _get_next_framedata(self, ix):
-        imagedata = self.tf.pages[self.frameix].asarray()
+        if self.cchan is None:
+            # monochrome video
+            imagedata = self.tf.pages[self.frameix].asarray()
+        else:
+            # color video
+            imagedata = self.tf.pages[self.frameix].asarray()[: ,:, self.cchan]
         return imagedata
 
 
@@ -198,8 +215,53 @@ class FrameStreamerAVI(FrameStreamerBasic):
             print('AVI: Fast forwarding...', self.Nskipstart, 'frames')
             for i in range(self.Nskipstart):
                 self.next_frame()
+
+
+
+class FrameStreamerES(FrameStreamerBasic):
+    """FrameStreamer for basic processing of MTPI-DDM files (long-time DICF only)"""
+    def __init__(self, fname, colorchannel = None,
+                 **kwargs):
+        self.esvidf = open(fname, "r")
+        self.HasTimeStamps = True
+        if self.HasTimeStamps :
+            self.esvidf.seek(8)
+        else :
+            self.esvidf.seek(0)
+        self.ySz = np.fromfile(self.esvidf, dtype='>i4', count=1)[0]
+        self.xSz = np.fromfile(self.esvidf, dtype='>i4', count=1)[0]
+        self.imSz = self.xSz*self.ySz
+        self.esvidf.seek(0, 2)
+        fSz = self.esvidf.tell()
+        if self.HasTimeStamps :
+            n_frames = int(fSz/(self.imSz+16))       # car chaque image est précédée de sa taille
+        else :
+            n_frames = int(fSz/(self.imSz+8))               
+        self.frameshape = (self.ySz, self.xSz)
+        self.globalmax = 0
+        self.globalmin = 255
+        super().__init__(self.frameshape, **kwargs)
+        self.Nframes = n_frames // 2  # ADDRESS ONLY EVEN NUMBERED FRAMES
+        print(60*'*')
+        print('   ONLY USING THE EVEN NUMBERED FRAMES FROM THE VIDEO')
+        print(60*'*')
+        self.random_access = True # TiffFile provides random access through the TIFF pages
+        self.vmin = self.globalmin
+        self.vmax = self.globalmax       
         
         
+    def _get_next_framedata(self, ix):
+        idx = ix * 2   # ONLY EVEN NUMBERED FRAMES
+        if self.HasTimeStamps :
+            self.esvidf.seek(np.dtype('int64').type(idx)*(self.imSz+16)+16)
+        else :
+            self.esvidf.seek(np.dtype('int64').type(idx)*(self.imSz+8)+8)
+        im1 = np.fromfile(self.esvidf, dtype='uint8', count=self.imSz)
+        imagedata = im1.reshape(*self.frameshape)
+        return imagedata
+        
+
+
         
         
         
