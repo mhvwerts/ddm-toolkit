@@ -166,11 +166,13 @@ FFTBUFTYPE = np.complex64  # might be tuned later for performance
 
 #
 
-available_engine_models = [1,2,3,4]
+# deactivate redundant engines 
+# available_engine_models = [1,2,3,4]
+available_engine_models = [1,3,4]
 
 best_available_engine_model = 4 # best numpy-only model
 if not (numba is None):
-    available_engine_models.append(5)
+    # available_engine_models.append(5)
     available_engine_models.append(6)
     best_available_engine_model = 6 # with numba available
 if not (cuda is None):
@@ -757,6 +759,7 @@ class ImageStructureEngine4:
 
         # frame counter
         self.totalframes += 1
+        
 
     def _update_ISF(self, img_in_fft_real, img_in_fft_imag):
         """process an incoming frame for the image structure function
@@ -771,6 +774,8 @@ class ImageStructureEngine4:
                   + (img_in_fft_imag - self.BUFimag[ixc,:,:])**2
             # add to total isf
             self._ISFaccum[n,:,:] += dISF
+            
+       
                 
     def ISF(self):
         """return a new matrix with the full, correctly oriented
