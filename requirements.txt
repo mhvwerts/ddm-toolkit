@@ -4,7 +4,8 @@
 #
 # Usage: conda create --name ddm_toolkit_env --file requirements.txt
 
-python>=3.12.1
+# We currently stick with Python 3.12, to be consistent with all our current developments
+python>=3.12.1,<3.13
 
 # core runtime dependencies (== pyproject.toml [project.dependencies])
 numpy>=2.0.2

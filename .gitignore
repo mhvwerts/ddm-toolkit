@@ -1,21 +1,38 @@
-doc/_build/
+# Python build artifacts
 __pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+
+# Documentation build
+doc/_build/
+
+# Jupyter
 .ipynb_checkpoints/
 .virtual_documents/
+
+# OS
+.DS_Store
+
+# Project-specific directories
 archive/
 local/
 private/
-package*/
+
+# Data / large files
 /datafiles/*
 *.bin
-*.exe
-*.bak
-*.zip
 *.npz
-*.so
 *.tif
 *.pkl
-*_log.txt
+*.zip
 *.tar.gz
-.DS_Store
 
+# Logs
+*_log.txt
+
+# Compiled / executable
+*.exe
+*.so
+*.bak
