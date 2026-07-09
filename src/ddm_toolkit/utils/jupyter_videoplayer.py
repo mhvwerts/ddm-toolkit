@@ -115,13 +115,13 @@ class VideoPlayerUI:
         self.wdgROIy.observe(self._on_wdgROIy, names='value')
         
         self.buttonbox = widgets.HBox([self.button1, self.button2])
-        rbox = widgets.VBox([self.buttonbox,
+        lbox = widgets.VBox([self.buttonbox,
                              self.frameslide, 
                              self.set_vmin, self.set_vmax,
                              self.wdgROIcontrol,
                              self.wdgROIsize,
                              self.wdgROIx, self.wdgROIy])
-        self.UIbox = widgets.HBox([self.imgwdg, rbox])
+        self.UIbox = widgets.HBox([lbox, self.imgwdg])
          
     def _on_button1_clicked(self, b):
         if self.framestrm.random_access:
