@@ -3,15 +3,6 @@
 #
 # Test 5. Compare results of different ImageStructureEngines
 #
-# THIS SCRIPT SHOULD BE RUN FROM THE PROJECT ROOT DIRECTORY
-#  (this is the parent directory to the directory in which this script is)
-#  In order to run using 'Spyder', choose 'Run'->'Configuration per file', and
-#  set the working directory to the project's root directory. Personally, I
-#  also set 'Execute in a dedicated console' 
-#
-# Alternatively, to run using pytest (from the project root directory)
-#
-#   pytest tests/test_5_compare_ISEngines.py
 #
 #
 #
@@ -19,19 +10,8 @@
 
 import pytest
 
-# import numpy as np
-# import matplotlib.pyplot as plt
+import ddm_toolkit
 
-
-# somewhat clumsy try...except imports
-# to enable these test scripts to be run independently from pytest
-# for example using spyder
-try:
-    import ddm_toolkit
-except:
-    import sys
-    sys.path.append('./..')
-    import ddm_toolkit
 
 
 from ddm_toolkit.ddm import best_available_engine_model

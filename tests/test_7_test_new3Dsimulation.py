@@ -19,15 +19,7 @@ from tqdm import tqdm
 import numpy as np
 # import matplotlib.pyplot as plt
 
-# somewhat clumsy try...except imports
-# to enable these test scripts to be run independently from pytest
-# for example using spyder
-try:
-    import ddm_toolkit
-except:
-    import sys
-    sys.path.append('./..')
-    import ddm_toolkit
+import ddm_toolkit
 
 from ddm_toolkit.params import DDMParams
 from ddm_toolkit.simulation import PRNG ## !!! be sure to use only a single PRNG

@@ -9,12 +9,7 @@ import matplotlib.pyplot as plt
 # somewhat clumsy try...except imports
 # to enable these test scripts to be run independently from pytest
 # for example using spyder
-try:
-    from ddm_toolkit.ddm import ImageStructureEngine, ImageStructureFunction
-except:
-    import sys
-    sys.path.append('./..')
-    from ddm_toolkit.ddm import ImageStructureEngine, ImageStructureFunction
+from ddm_toolkit.ddm import ImageStructureEngine, ImageStructureFunction
 
 
 try:

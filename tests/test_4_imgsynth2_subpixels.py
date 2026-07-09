@@ -7,15 +7,7 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 import matplotlib.pyplot as plt
 
-# somewhat clumsy try...except imports
-# to enable these test scripts to be run independently from pytest
-# for example using spyder
-try:
-    from ddm_toolkit.ddm import ImageStructureEngine
-except:
-    import sys
-    sys.path.append('./..')
-    from ddm_toolkit.ddm import ImageStructureEngine
+from ddm_toolkit.ddm import ImageStructureEngine
 
 
 from ddm_toolkit.simulation import random_coordinates

@@ -5,7 +5,7 @@
 
 from tifffile import TiffFile
 from tifffile import imread as tiff_imread
-from tifffile import imsave as tiff_imsave
+from tifffile import imwrite as tiff_imwrite
 from tifffile import TiffWriter
 from tifffile import __version__ as tifffile_version
 
