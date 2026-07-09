@@ -120,8 +120,26 @@ class VideoPlayerUI:
                              self.set_vmin, self.set_vmax,
                              self.wdgROIcontrol,
                              self.wdgROIsize,
-                             self.wdgROIx, self.wdgROIy])
-        self.UIbox = widgets.HBox([lbox, self.imgwdg])
+                             self.wdgROIx, self.wdgROIy],
+                             layout=widgets.Layout(
+                                 flex='0 0 auto',   # never shrink or grow: fixed width
+                                 width='320px',
+                                 min_width='320px'
+                             ))
+
+        self.imgwdg.layout = widgets.Layout(
+            flex='1 1 auto',   # take remaining space, but can shrink
+            min_width='0',     # crucial: lets the image shrink below its native size
+            max_width='100%',
+            height='auto'
+        )
+
+        self.UIbox = widgets.HBox([lbox, self.imgwdg],
+                                   layout=widgets.Layout(
+                                       width='100%',
+                                       flex_flow='row wrap',  # wrap below instead of clipping/scrolling
+                                       align_items='flex-start'
+                                   ))
          
     def _on_button1_clicked(self, b):
         if self.framestrm.random_access:
