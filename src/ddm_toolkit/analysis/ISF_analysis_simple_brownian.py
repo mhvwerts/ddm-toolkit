@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
-from ddm_toolkit2.utils import closestidx, conf95
+from ..utils import closestidx, conf95
 from .ISF_analysis_simple_brownian_result import ISFanalysis_simple_brownian_result
 
 def ISFanalysis_simple_brownian(IA, D_guess, refine_guess = True,
