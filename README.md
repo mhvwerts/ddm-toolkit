@@ -17,7 +17,7 @@ Our DDM toolkit has several specific original features:
 
 This Github repository centralizes the contributions made to our lab's DDM Python code by the students and investigators who participate in this research. The aim is to constitute a standardized toolkit that students and colleagues can download and use for DDM. It can also contribute to testing, benchmarking and comparing different approaches in DDM.
 
-For the forseeable future, this toolkit will remain in an early development state. It is mainly intended for users who are already experienced with the DDM workflow, and also have basic knowledge on how to work with Python in a scientific research setting. People who are new to DDM will be better served by, *e.g.* [fastDDM](https://fastddm.readthedocs.io/), see the next section).
+For the forseeable future, this toolkit will remain in an early development state. It is mainly intended for users who are already experienced with the DDM workflow, and also have basic knowledge on how to work with Python in a scientific research setting. People who are new to DDM will be better served by, *e.g.*, [fastDDM](https://fastddm.readthedocs.io/) see the next section).
 
 
 
